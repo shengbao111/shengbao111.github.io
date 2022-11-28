@@ -9,8 +9,31 @@
     <atom:link href="http://example.com/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>仰望星空，脚踏实地</description>
-    <pubDate>Sun, 27 Nov 2022 12:01:50 GMT</pubDate>
+    <pubDate>Mon, 28 Nov 2022 12:40:54 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>mytest</title>
+      <link>http://example.com/2022/11/28/mytest/</link>
+      <guid>http://example.com/2022/11/28/mytest/</guid>
+      <pubDate>Mon, 28 Nov 2022 12:25:44 GMT</pubDate>
+      
+        
+        
+      <description>&lt;p&gt;这是我的一个测试&lt;br&gt;首先插入一张照片&lt;br&gt;&lt;img src=&quot;/./mytest/example2.png&quot;&gt;&lt;/p&gt;
+</description>
+        
+      
+      
+      
+      <content:encoded><![CDATA[<p>这是我的一个测试<br>首先插入一张照片<br><img src="/./mytest/example2.png"></p>]]></content:encoded>
+      
+      
+      
+      
+      <comments>http://example.com/2022/11/28/mytest/#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>我的第一个博客</title>
