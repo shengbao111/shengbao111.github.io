@@ -9,7 +9,7 @@
     <atom:link href="http://example.com/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>仰望星空，脚踏实地</description>
-    <pubDate>Mon, 28 Nov 2022 12:40:54 GMT</pubDate>
+    <pubDate>Mon, 28 Nov 2022 12:52:39 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
@@ -20,13 +20,13 @@
       
         
         
-      <description>&lt;p&gt;这是我的一个测试&lt;br&gt;首先插入一张照片&lt;br&gt;&lt;img src=&quot;/./mytest/example2.png&quot;&gt;&lt;/p&gt;
+      <description>&lt;p&gt;这是我的一个测试&lt;br&gt;首先插入一张照片&lt;br&gt;&lt;img src=&quot;/example2.jpg&quot;&gt;&lt;/p&gt;
 </description>
         
       
       
       
-      <content:encoded><![CDATA[<p>这是我的一个测试<br>首先插入一张照片<br><img src="/./mytest/example2.png"></p>]]></content:encoded>
+      <content:encoded><![CDATA[<p>这是我的一个测试<br>首先插入一张照片<br><img src="/example2.jpg"></p>]]></content:encoded>
       
       
       
