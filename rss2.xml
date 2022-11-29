@@ -9,7 +9,7 @@
     <atom:link href="http://example.com/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>仰望星空，脚踏实地</description>
-    <pubDate>Mon, 28 Nov 2022 12:59:31 GMT</pubDate>
+    <pubDate>Tue, 29 Nov 2022 03:17:56 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
@@ -28,6 +28,8 @@
       
       <content:encoded><![CDATA[<p>这是我的一个测试<br>首先插入一张照片<br><img src="example2.jpg"></p>]]></content:encoded>
       
+      
+      <category domain="http://example.com/categories/%E6%B5%8B%E8%AF%95/">测试</category>
       
       
       
@@ -51,9 +53,7 @@
       <content:encoded><![CDATA[<p>#这是我的第一篇博客<br>##不知道你是否能看见呢，当然一切都还只是在测试。<br>先插入一个图片试一试<br><img src="/images/bp.jpg"><br>再看一张图片<br><img src="/images/pg2.png"><br>这是<a href="https://baidu.com/">百度连接</a><br>再次写一个百度连接<a href="https://baidu.com/">https://baidu.com</a><br>这是markdown的语法大全<a href="https://blog.csdn.net/witnessai1/article/details/52551362?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166964456216782425681561%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=166964456216782425681561&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-52551362-null-null.142%5Ev67%5Econtrol,201%5Ev3%5Econtrol,213%5Ev2%5Et3_control2&utm_term=markdown%E8%AF%AD%E6%B3%95&spm=1018.2226.3001.4187">点击进入</a><br>质能守恒方程可以用一个很简洁的方程式 $E&#x3D;mc^2$ 来表达。</p><h1 id="这是一个以及标题"><a href="#这是一个以及标题" class="headerlink" title="这是一个以及标题"></a>这是一个以及标题</h1><h2 id="二级标题"><a href="#二级标题" class="headerlink" title="二级标题"></a>二级标题</h2><p>有序列表</p><ol><li>有序第一项</li><li>有序第二项</li></ol><p>无序列表</p><ul><li>无序列表第一项</li><li>无序列表第二项</li></ul><p><em>这是一段斜体</em></p><p><strong>这是一段加粗</strong></p>]]></content:encoded>
       
       
-      <category domain="http://example.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</category>
-      
-      <category domain="http://example.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</category>
+      <category domain="http://example.com/categories/%E6%B5%8B%E8%AF%95/">测试</category>
       
       
       <category domain="http://example.com/tags/%E6%9D%82%E8%B0%88/">杂谈</category>
