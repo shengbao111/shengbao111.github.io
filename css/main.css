@@ -1175,7 +1175,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #ffcbff;
+  background: #2d67ff;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2729,7 +2729,7 @@ mjx-container + br {
   }
 }
 body {
-  background: url("/images/backgroundpicture1.jpg");
+  background: url("https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/222.jpg");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
