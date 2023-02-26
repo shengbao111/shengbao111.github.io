@@ -229,7 +229,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-02-26 14:46:07 / 修改时间：15:53:40" itemprop="dateCreated datePublished" datetime="2023-02-26T14:46:07+08:00">2023-02-26</time>
+              <time title="创建时间：2023-02-26 14:46:07 / 修改时间：16:03:55" itemprop="dateCreated datePublished" datetime="2023-02-26T14:46:07+08:00">2023-02-26</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -266,13 +266,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>首先ODR、BSRR、BRR三个寄存器都能控制引脚输出高低电平，它们在使用规则以及简易程度上有所不同。<br>#ODR<br>ODR：输出端口寄存器 Output data register。ODR寄存器, 控制管脚的高、低电平，低16位有效，写1高电平，写0低电平。具体如图所示：<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/1f35b69b1c4b6984db6ebf4eed65336.png"><br>我们可以采用如下代码实现GPIO的0引脚交替输出高低电平：</p>
+          <p>首先ODR、BSRR、BRR三个寄存器都能控制引脚输出高低电平，它们在使用规则以及简易程度上有所不同。</p>
+<h1 id="ODR"><a href="#ODR" class="headerlink" title="ODR"></a>ODR</h1><p>ODR：输出端口寄存器 Output data register。ODR寄存器, 控制管脚的高、低电平，低16位有效，写1高电平，写0低电平。具体如图所示：<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/1f35b69b1c4b6984db6ebf4eed65336.png"><br>我们可以采用如下代码实现GPIO的0引脚交替输出高低电平：</p>
 <pre><code>GPIOB-&gt;ODR |=(1&lt;&lt;0);
 Delay(0xFFFFF);
 GPIOB-&gt;ODR = 0;
 Delay(0xFFFFF);
 </code></pre>
-<p>#BSRR<br>BSRR寄存器, 控制管脚的高、低电平，32位有效，低16位写1 高电平，高16位写1 低电平。具体如图所示：<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/b96dde7fd93a54382d278cd0046b9a0.png"><br>在stm32f10x_gpio.c文件中给出了它的使用方法：</p>
+<h1 id="BSRR"><a href="#BSRR" class="headerlink" title="BSRR"></a>BSRR</h1><p>BSRR寄存器, 控制管脚的高、低电平，32位有效，低16位写1 高电平，高16位写1 低电平。具体如图所示：<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/b96dde7fd93a54382d278cd0046b9a0.png"><br>在stm32f10x_gpio.c文件中给出了它的使用方法：</p>
 <pre><code>void GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 &#123;
   /* Check the parameters */
@@ -291,7 +292,8 @@ Delay(0xFFFFF);
   GPIOx-&gt;BSRR = (PIO_Pin&lt;&lt;16);
 &#125;
 </code></pre>
-<p>如此看来，仅使用一个寄存器BSRR就可以使GPIO引脚输出高低电平，实时也是如此，F1和F4系列都有ODR和BSRR，但F4 取消了BRR。所以为了代码通用，尽量不使用BRR，反正BSRR能完成。<br>#BRR<br>BRR寄存器, 控制管脚的低电平，低16位有效，写1 低电平。具体如图所示<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/c2434bad7a8843ceabad643ba2d76e2.png"><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/a5233e2228d2c96e785cb8ad078ddd5.png"><br>在stm32f10x_gpio.c文件中给出了它的使用方法：</p>
+<p>如此看来，仅使用一个寄存器BSRR就可以使GPIO引脚输出高低电平，实时也是如此，F1和F4系列都有ODR和BSRR，但F4 取消了BRR。所以为了代码通用，尽量不使用BRR，反正BSRR能完成。  </p>
+<h1 id="BRR"><a href="#BRR" class="headerlink" title="BRR"></a>BRR</h1><p>BRR寄存器, 控制管脚的低电平，低16位有效，写1 低电平。具体如图所示<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/c2434bad7a8843ceabad643ba2d76e2.png"><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/a5233e2228d2c96e785cb8ad078ddd5.png"><br>在stm32f10x_gpio.c文件中给出了它的使用方法：</p>
 <pre><code>void GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 &#123;
   /* Check the parameters */
