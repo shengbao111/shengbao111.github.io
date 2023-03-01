@@ -235,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-03-01 19:48:14" itemprop="dateModified" datetime="2023-03-01T19:48:14+08:00">2023-03-01</time>
+                <time title="修改时间：2023-03-01 20:09:56" itemprop="dateModified" datetime="2023-03-01T20:09:56+08:00">2023-03-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -253,7 +253,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.5k</span>
+              <span>5.7k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -333,7 +333,16 @@ ENDP
   #endif /* DATA_IN_ExtSRAM */
 #endif 
 </code></pre>
-<p>该段代码中只执行”RCC-&gt;CIR &#x3D; 0x009F0000;”也就是RCC-&gt;CIR &#x3D;0000 0000 1001 1111 0000 0000 0000 0000，即让RCC的CIR寄存器的16、17、18、19、20、19、20、23位置1，其他位置0。查表可知其目的就是清除中断标志位<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/3b369f919260a74818dd110477fe6c5.png"></p>
+<p>该段代码中只执行”RCC-&gt;CIR &#x3D; 0x009F0000;”也就是RCC-&gt;CIR &#x3D;0000 0000 1001 1111 0000 0000 0000 0000，即让RCC的CIR寄存器的16、17、18、19、20、19、20、23位置1，其他位置0。查表可知其目的就是清除中断标志位<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/3b369f919260a74818dd110477fe6c5.png"><br>进入SetSysClock()函数</p>
+<pre><code>  SetSysClock();
+
+#ifdef VECT_TAB_SRAM
+  SCB-&gt;VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
+#else
+  SCB-&gt;VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+#endif 
+&#125;
+</code></pre>
 <h2 id="2-3-SetSysClock"><a href="#2-3-SetSysClock" class="headerlink" title="2.3-SetSysClock()"></a>2.3-SetSysClock()</h2><p>这是一个系统时钟判断函数，定义了哪个宏就进入到这个宏所对应的时钟系统配置函数。</p>
 <pre><code>  static void SetSysClock(void)
 &#123;
