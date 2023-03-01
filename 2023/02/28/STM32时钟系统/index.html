@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1.0-STM32时钟系统框架STM32F10**的时钟系统框架图如下其中的蓝色方框为时钟源，他们的功能如下灰色的等腰梯形是时钟源选择器，它可以选择多路时钟信号的其中一个来作为信号输出给下一器件，绿色方框是预分频器，用来分频。 2.0-系统初始化函数运行过程总的来说，整个文件、函数的调用顺序如下：startup_stm32f10x_cl.s（启动文件） → SystemInit() →  SetS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STM32时钟系统">
+<meta property="og:url" content="http://example.com/2023/02/28/STM32%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="胜哥爱周周">
+<meta property="og:description" content="1.0-STM32时钟系统框架STM32F10**的时钟系统框架图如下其中的蓝色方框为时钟源，他们的功能如下灰色的等腰梯形是时钟源选择器，它可以选择多路时钟信号的其中一个来作为信号输出给下一器件，绿色方框是预分频器，用来分频。 2.0-系统初始化函数运行过程总的来说，整个文件、函数的调用顺序如下：startup_stm32f10x_cl.s（启动文件） → SystemInit() →  SetS">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/81e55b22349974904817ec531ea5b0e.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/fd7fad480d1d3269f6c0ee5bfa8abc3.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/1c42690b0d73fc4d7a1a28716fade94.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/3b369f919260a74818dd110477fe6c5.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/9849c35821adf143a0b69202150ddc4.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/e69e2dd96541cf78dc354f6dc293566.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/a66df341e8d20a2affbdc1a03205226.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/85b0ff61a42abc0e9c1481e3992ff65.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/7a346b396fa75d17e4b988cc8d9710d.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/c2100189eb5b476586692809695ef4c.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/4ea398a3d3a0af055ad9b9a923615ea.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/bc7d79867ec68385daef28c8a1df9e9.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/50d36d7865f08a2a00871f4349946c9.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/8f9688bffd8918a32ab1e774e703e86.png">
+<meta property="article:published_time" content="2023-02-28T14:03:45.000Z">
+<meta property="article:modified_time" content="2023-03-01T11:48:14.031Z">
+<meta property="article:author" content="胜哥">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/81e55b22349974904817ec531ea5b0e.png">
+
+<link rel="canonical" href="http://example.com/2023/02/28/STM32%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>STM32时钟系统 | 胜哥爱周周</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/rss2.xml" title="胜哥爱周周" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胜哥爱周周</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">很高兴认识你，请多多指教</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-resources">
+
+    <a href="/resources/" rel="section"><i class="download fa-fw"></i>资源</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/28/STM32%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="胜哥">
+      <meta itemprop="description" content="仰望星空，脚踏实地">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胜哥爱周周">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          STM32时钟系统
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-02-28 22:03:45" itemprop="dateCreated datePublished" datetime="2023-02-28T22:03:45+08:00">2023-02-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-01 19:48:14" itemprop="dateModified" datetime="2023-03-01T19:48:14+08:00">2023-03-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA/" itemprop="url" rel="index"><span itemprop="name">单片机</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="1-0-STM32时钟系统框架"><a href="#1-0-STM32时钟系统框架" class="headerlink" title="1.0-STM32时钟系统框架"></a>1.0-STM32时钟系统框架</h1><p>STM32F10**的时钟系统框架图如下<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/81e55b22349974904817ec531ea5b0e.png"><br>其中的蓝色方框为时钟源，他们的功能如下<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/fd7fad480d1d3269f6c0ee5bfa8abc3.png"><br>灰色的等腰梯形是时钟源选择器，它可以选择多路时钟信号的其中一个来作为信号输出给下一器件，绿色方框是预分频器，用来分频。</p>
+<h1 id="2-0-系统初始化函数运行过程"><a href="#2-0-系统初始化函数运行过程" class="headerlink" title="2.0-系统初始化函数运行过程"></a>2.0-系统初始化函数运行过程</h1><p>总的来说，整个文件、函数的调用顺序如下：<br>startup_stm32f10x_cl.s（启动文件） → SystemInit() →  SetSysClock () → SetSysClockTo72()</p>
+<h2 id="2-1-startup-stm32f10x-cl-s（启动文件）"><a href="#2-1-startup-stm32f10x-cl-s（启动文件）" class="headerlink" title="2.1-startup_stm32f10x_cl.s（启动文件）"></a>2.1-startup_stm32f10x_cl.s（启动文件）</h2><p>在启动文件startup_stm32f10x_hd.s中调用系统初始化函数SystemInit </p>
+<pre><code>Reset_Handler   PROC
+EXPORT  Reset_Handler             [WEAK]
+IMPORT  __main
+IMPORT  SystemInit
+LDR     R0, =SystemInit
+BLX     R0               
+LDR     R0, =__main
+BX      R0
+ENDP
+</code></pre>
+<p>注意系统初始化函数在，主函数main之前就已经调用了，也就是说程序执行主函数内容之前，系统就已经将时钟配置好了。 </p>
+<h2 id="2-2-SystemInit"><a href="#2-2-SystemInit" class="headerlink" title="2.2-SystemInit()"></a>2.2-SystemInit()</h2><p>SystemInit()函数在文件system_stm32f10x.c文件中，这个文件主要是用来配置系统时钟。现对其代码进行逐项分析。  </p>
+<pre><code>/* Reset the RCC clock configuration to the default reset state(for debug purpose) */
+  /* Set HSION bit */
+  RCC-&gt;CR |= (uint32_t)0x00000001;
+
+  /* Reset SW, HPRE, PPRE1, PPRE2, ADCPRE and MCO bits */
+#ifndef STM32F10X_CL
+  RCC-&gt;CFGR &amp;= (uint32_t)0xF8FF0000;
+#else
+  RCC-&gt;CFGR &amp;= (uint32_t)0xF0FF0000;
+#endif /* STM32F10X_CL */  
+  /* Reset HSEON, CSSON and PLLON bits */
+  RCC-&gt;CR &amp;= (uint32_t)0xFEF6FFFF;
+
+  /* Reset HSEBYP bit */
+  RCC-&gt;CR &amp;= (uint32_t)0xFFFBFFFF;
+
+  /* Reset PLLSRC, PLLXTPRE, PLLMUL and USBPRE/OTGFSPRE bits */
+  RCC-&gt;CFGR &amp;= (uint32_t)0xFF80FFFF;  
+</code></pre>
+<p>该段代码主要是完成寄存器初始化功能。例如代码”RCC-&gt;CR &amp;&#x3D; (uint32_t)0xFFFBFFFF;”就相当于CC-&gt;CR &amp;&#x3D;1111 1111 1111 1011 1111 1111 1111 1111 也就是使得RCC的CR寄存器的第18位置为0。查数据手册可知<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/1c42690b0d73fc4d7a1a28716fade94.png"></p>
+<pre><code>#ifdef STM32F10X_CL
+  /* Reset PLL2ON and PLL3ON bits */
+  RCC-&gt;CR &amp;= (uint32_t)0xEBFFFFFF;
+
+  /* Disable all interrupts and clear pending bits  */
+  RCC-&gt;CIR = 0x00FF0000;
+
+  /* Reset CFGR2 register */
+  RCC-&gt;CFGR2 = 0x00000000;
+#elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || (defined STM32F10X_HD_VL)
+  /* Disable all interrupts and clear pending bits  */
+  RCC-&gt;CIR = 0x009F0000;
+
+  /* Reset CFGR2 register */
+  RCC-&gt;CFGR2 = 0x00000000;      
+#else
+  /* Disable all interrupts and clear pending bits  */
+  RCC-&gt;CIR = 0x009F0000;
+#endif /* STM32F10X_CL */
+    
+#if defined (STM32F10X_HD) || (defined STM32F10X_XL) || (defined STM32F10X_HD_VL)
+  #ifdef DATA_IN_ExtSRAM
+    SystemInit_ExtMemCtl(); 
+  #endif /* DATA_IN_ExtSRAM */
+#endif 
+</code></pre>
+<p>该段代码中只执行”RCC-&gt;CIR &#x3D; 0x009F0000;”也就是RCC-&gt;CIR &#x3D;0000 0000 1001 1111 0000 0000 0000 0000，即让RCC的CIR寄存器的16、17、18、19、20、19、20、23位置1，其他位置0。查表可知其目的就是清除中断标志位<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/3b369f919260a74818dd110477fe6c5.png"></p>
+<h2 id="2-3-SetSysClock"><a href="#2-3-SetSysClock" class="headerlink" title="2.3-SetSysClock()"></a>2.3-SetSysClock()</h2><p>这是一个系统时钟判断函数，定义了哪个宏就进入到这个宏所对应的时钟系统配置函数。</p>
+<pre><code>  static void SetSysClock(void)
+&#123;
+#ifdef SYSCLK_FREQ_HSE
+  SetSysClockToHSE();
+#elif defined SYSCLK_FREQ_24MHz
+  SetSysClockTo24();
+#elif defined SYSCLK_FREQ_36MHz
+  SetSysClockTo36();
+#elif defined SYSCLK_FREQ_48MHz
+  SetSysClockTo48();
+#elif defined SYSCLK_FREQ_56MHz
+  SetSysClockTo56();  
+#elif defined SYSCLK_FREQ_72MHz
+  SetSysClockTo72();
+#endif
+</code></pre>
+<p> 在文件system_stm32f10x.c的开头，有这些宏的定义</p>
+<pre><code>#if defined (STM32F10X_LD_VL) || (defined STM32F10X_MD_VL) || (defined STM32F10X_HD_VL)
+/* #define SYSCLK_FREQ_HSE    HSE_VALUE */
+ #define SYSCLK_FREQ_24MHz  24000000
+#else
+/* #define SYSCLK_FREQ_HSE    HSE_VALUE */
+/* #define SYSCLK_FREQ_24MHz  24000000 */ 
+/* #define SYSCLK_FREQ_36MHz  36000000 */
+/* #define SYSCLK_FREQ_48MHz  48000000 */
+/* #define SYSCLK_FREQ_56MHz  56000000 */
+#define SYSCLK_FREQ_72MHz  72000000
+#endif
+</code></pre>
+<p>STM32F10X的型号有如下：<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/9849c35821adf143a0b69202150ddc4.png"><br>其中D表示密度(Density)，V表示容量(Volume)。<br>我们使用的是STM32F10X_HD型号，所以执行的是else中的语句定义了宏SYSCLK_FREQ_72MHz，相应的执行时钟配置函数为 SetSysClockTo72()。若要选择其他系统时钟只需将前面的“&#x2F;*”去除即可调用相应的宏所对应的系统时钟配置函数。</p>
+<h2 id="2-4-SetSysClockTo72-函数"><a href="#2-4-SetSysClockTo72-函数" class="headerlink" title="2.4-SetSysClockTo72()函数"></a>2.4-SetSysClockTo72()函数</h2><p>SetSysClockTo72()函数代码总体分为总线时钟配置、系统时钟源的选择两个部分。</p>
+<h3 id="2-4-1-总线时钟的分频"><a href="#2-4-1-总线时钟的分频" class="headerlink" title="2.4.1-总线时钟的分频"></a>2.4.1-总线时钟的分频</h3><p><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/e69e2dd96541cf78dc354f6dc293566.png"><br>各个RCC寄存器的主要作用<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/a66df341e8d20a2affbdc1a03205226.png"><br>代码分析</p>
+<pre><code>/* SYSCLK, HCLK, PCLK2 and PCLK1 configuration（开启外部高速时钟） ---------------------------*/    
+  /* Enable HSE */    
+  RCC-&gt;CR |= ((uint32_t)RCC_CR_HSEON);
+</code></pre>
+<p>在stm32f10x.h中RCC_CR_HSEON被宏定义成0x00010000，则这句代码的意思是将RCC中的寄存器CR的第16位置为1，其他位置为0。查数据手册知其目的是开启外部高速时钟。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/85b0ff61a42abc0e9c1481e3992ff65.png"></p>
+<pre><code>/* Wait till HSE is ready and if Time out is reached exit */
+  do
+  &#123;
+    HSEStatus = RCC-&gt;CR &amp; RCC_CR_HSERDY;
+    StartUpCounter++;  
+  &#125; while((HSEStatus == 0) &amp;&amp; (StartUpCounter != HSE_STARTUP_TIMEOUT));
+</code></pre>
+<p>开启HSE后，该段代码等待HSE返回准备就绪标志位。在stm32f10x.h中RCC_CR_HSERDY被宏定义成(uint32_t)0x00020000，所以读取RCC中CR寄存器的第17位，并将其返回给HSEstatus.查数据手册知第17位是外部高速时钟就绪标志 (External high-speed clock ready flag) <img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/7a346b396fa75d17e4b988cc8d9710d.png">do-while循环结束的标志是外部时钟准备就绪标志位为1且等待时间不超时。我们在使能时钟源后都要等待其返回就绪。</p>
+<pre><code>if (HSEStatus == (uint32_t)0x01)
+  &#123;
+    /* Enable Prefetch Buffer */
+    FLASH-&gt;ACR |= FLASH_ACR_PRFTBE;
+
+    /* Flash 2 wait state */
+    FLASH-&gt;ACR &amp;= (uint32_t)((uint32_t)~FLASH_ACR_LATENCY);
+    FLASH-&gt;ACR |= (uint32_t)FLASH_ACR_LATENCY_2;     
+</code></pre>
+<p>如果就绪位返回为1，则执行接下来代码。FLASH_ACR_PRFTBE在stm32f10x.h文件中定义成(uint8_t)0x10，故在FLASH的ACR寄存器中的第4位写入1，其他位保持不变，查阅STM32F10***闪存编程手册可知其最终的结果是启用预取缓冲区。因为CPU的速度远大于存储器的速度，所以此处要2个等待状态<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/c2100189eb5b476586692809695ef4c.png">  </p>
+<pre><code> /* HCLK = SYSCLK */
+    RCC-&gt;CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
+      
+    /* PCLK2 = HCLK */
+    RCC-&gt;CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;
+    
+    /* PCLK1 = HCLK/2 */
+    RCC-&gt;CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;
+</code></pre>
+<p>第一句代码使HCLK(High-speed Clock,提供给高速总线AHB的时钟信号)等于系统时钟，由时钟系统框图可知AHB预分频器置为1（不分频），由STM32中文手册时钟配置寄存器(RCC_CFGR)可知其不分频时全部置0。<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/4ea398a3d3a0af055ad9b9a923615ea.png"><br>第二句代码使PCLK2(Peripheral Clock,提供给低速总线APB2的时钟信号)等于HCLK，由时钟系统框图可知APB2-prescaler(APB2预分频器)置为1（不分频），由STM32中文手册时钟配置寄存器(RCC_CFGR)可知其不分频时全部置0。<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/bc7d79867ec68385daef28c8a1df9e9.png"><br>第三句代码使PCLK1(Peripheral Clock,提供给低速总线APB1的时钟信号)等于HCLK的一半，由时钟系统框图可知AHB预分频器置为2（二分频），由STM32中文手册时钟配置寄存器(RCC_CFGR)可知其8-10位应为100，所以RCC-&gt;CFGR |&#x3D;0x00000400,也就是0000 0000 0000 0000 0000 0100 0000 0000，而事实上：</p>
+<pre><code>#define  RCC_CFGR_PPRE1_DIV2       ((uint32_t)0x00000400)        /*!&lt; HCLK divided by 2 */
+</code></pre>
+<h3 id="2-4-2-系统时钟源的选择"><a href="#2-4-2-系统时钟源的选择" class="headerlink" title="2.4.2-系统时钟源的选择"></a>2.4.2-系统时钟源的选择</h3><pre><code>#else
+/*  PLL configuration: PLLCLK = HSE * 9 = 72 MHz */
+    RCC-&gt;CFGR &amp;= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE |
+                                        RCC_CFGR_PLLMULL));
+    RCC-&gt;CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSE | RCC_CFGR_PLLMULL9);
+</code></pre>
+<p>该段代码将外部高速时钟源不分频再经锁相环9倍频成为72M系统时钟源。</p>
+<pre><code>/* Enable PLL */
+    RCC-&gt;CR |= RCC_CR_PLLON;
+
+    /* Wait till PLL is ready */
+    while((RCC-&gt;CR &amp; RCC_CR_PLLRDY) == 0)
+    &#123;
+    &#125;
+</code></pre>
+<p>开启锁相环PLL,锁相环在SystemInit()函数中配置时钟控制寄存器(RCC_CR) 时已经关闭，因为在配置时钟配置寄存器(RCC_CFGR) 时很多位的写入需要将锁相环关闭。开启锁相环还需等待其返回PLL时钟就绪标志 (PLL clock ready flag)。<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/50d36d7865f08a2a00871f4349946c9.png"><br>选择PLL作为系统时钟源，并判断其系统时钟切换状态</p>
+<pre><code> /* Select PLL as system clock source */
+    RCC-&gt;CFGR &amp;= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+    RCC-&gt;CFGR |= (uint32_t)RCC_CFGR_SW_PLL;    
+
+    /* Wait till PLL is used as system clock source */
+    while ((RCC-&gt;CFGR &amp; (uint32_t)RCC_CFGR_SWS) != (uint32_t)0x08)
+    &#123;
+    &#125;
+</code></pre>
+<p><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/8f9688bffd8918a32ab1e774e703e86.png"></p>
+
+    </div>
+
+    
+    
+    
+
+     
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.png">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/02/26/%E5%85%B3%E4%BA%8EGPIO%E4%B8%89%E4%B8%AA%E5%AF%84%E5%AD%98%E5%99%A8%EF%BC%9AODR%E3%80%81BSRR%E3%80%81BRR%E5%8A%9F%E8%83%BD%E7%9A%84%E7%90%86%E8%A7%A3/" rel="prev" title="关于GPIO三个寄存器：ODR、BSRR、BRR功能的理解">
+      <i class="fa fa-chevron-left"></i> 关于GPIO三个寄存器：ODR、BSRR、BRR功能的理解
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81NzY5NS8zNDE1OA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-0-STM32%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6"><span class="nav-number">1.</span> <span class="nav-text">1.0-STM32时钟系统框架</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-0-%E7%B3%BB%E7%BB%9F%E5%88%9D%E5%A7%8B%E5%8C%96%E5%87%BD%E6%95%B0%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">2.0-系统初始化函数运行过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-startup-stm32f10x-cl-s%EF%BC%88%E5%90%AF%E5%8A%A8%E6%96%87%E4%BB%B6%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1-startup_stm32f10x_cl.s（启动文件）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-SystemInit"><span class="nav-number">2.2.</span> <span class="nav-text">2.2-SystemInit()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-SetSysClock"><span class="nav-number">2.3.</span> <span class="nav-text">2.3-SetSysClock()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-SetSysClockTo72-%E5%87%BD%E6%95%B0"><span class="nav-number">2.4.</span> <span class="nav-text">2.4-SetSysClockTo72()函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-1-%E6%80%BB%E7%BA%BF%E6%97%B6%E9%92%9F%E7%9A%84%E5%88%86%E9%A2%91"><span class="nav-number">2.4.1.</span> <span class="nav-text">2.4.1-总线时钟的分频</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-2-%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%E6%BA%90%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">2.4.2.</span> <span class="nav-text">2.4.2-系统时钟源的选择</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胜哥"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">胜哥</p>
+  <div class="site-description" itemprop="description">仰望星空，脚踏实地</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zh.cppreference.com/w/cpp" title="C++参考手册 → https:&#x2F;&#x2F;zh.cppreference.com&#x2F;w&#x2F;cpp" rel="noopener" target="_blank"><i class="fa fa-C++参考手册 fa-fw"></i>C++参考手册</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.bilibili.com/" title="B站 → https:&#x2F;&#x2F;www.bilibili.com&#x2F;" rel="noopener" target="_blank"><i class="fa fa-B站 fa-fw"></i>B站</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://baidu.com/" title="https:&#x2F;&#x2F;baidu.com" rel="noopener" target="_blank">百度</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胜哥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">10k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9 分钟</span>
+</div>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>
