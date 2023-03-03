@@ -204,6 +204,178 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/03/%E4%B8%AD%E6%96%AD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="胜哥">
+      <meta itemprop="description" content="仰望星空，脚踏实地">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胜哥爱周周">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/03/03/%E4%B8%AD%E6%96%AD/" class="post-title-link" itemprop="url">中断</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-03-03 15:31:39 / 修改时间：21:02:55" itemprop="dateCreated datePublished" datetime="2023-03-03T15:31:39+08:00">2023-03-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA/" itemprop="url" rel="index"><span itemprop="name">单片机</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="1-0-中断"><a href="#1-0-中断" class="headerlink" title="1.0-中断"></a>1.0-中断</h1><h2 id="1-1-中断概念"><a href="#1-1-中断概念" class="headerlink" title="1.1-中断概念"></a>1.1-中断概念</h2><p>打断cpu正常执行程序，转而处理紧急程序，然后返回原暂停的程序继续运行，就叫做中断。</p>
+<h2 id="1-2-中断的作用和意义"><a href="#1-2-中断的作用和意义" class="headerlink" title="1.2-中断的作用和意义"></a>1.2-中断的作用和意义</h2><p>1、实时控制：在确定时间内对相应事件做出相应，如：温度控制。可以设置定时器，在设置的时间间隔读取温度，设置的时间越短，则实时性越高。<br>2、故障处理：检测到故障，需要第一时间停下当前执行的程序而去处理故障，故障处理完毕再回到原来的程序停止处继续执行。<br>3、数据传输：不确定数据何时会传来，不能占用CPU空转一直等待数据传输过来，而是当数据传输过来时设置中断。如：串口数据接收。<br>4、中断的意义：高效处理紧急程序，并不会一直占用CPU资源。</p>
+<h2 id="STM32-GPIO外部中断简图"><a href="#STM32-GPIO外部中断简图" class="headerlink" title="STM32 GPIO外部中断简图"></a>STM32 GPIO外部中断简图</h2><p><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/01ae2009aeab7f2ae8dcc8a98bb23f9.png"></p>
+<h1 id="2-0-NVIC"><a href="#2-0-NVIC" class="headerlink" title="2.0-NVIC"></a>2.0-NVIC</h1><h2 id="2-1-NVIC的基本概念"><a href="#2-1-NVIC的基本概念" class="headerlink" title="2.1-NVIC的基本概念"></a>2.1-NVIC的基本概念</h2><p>Nested vectored interrupt controller,嵌套向量中断控制器，属于内核(M3&#x2F;4&#x2F;7)。NVIC支持：256个中断（16内核+240外部），支持：256个优先级，允许剪裁。每个中断都对应一个中断服务函数，中断服务函数是用来处理中断的，中断服务函数的名称不能任意起名，它存在于中断向量列表中，startup_stm32f10x_hd.s(启动文件)上有相应的定义。它是一种弱定义，也就是在.c文件中有同样中断函数名的定义，则执行.c文件中的函数，若.c文件中没有相应的函数名定义或者定义错误，则中断发生时，执行这个.s文件的中断服务函数。<br>中断向量表：定义一块固定的内存，以4字节对齐，存放各个中断服务函数的首地址，中断向量表定义在启动文件中，当中断发生时，CPU会自动执行对应的中断服务函数。<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/63a40802034218baec7a676423c23c3.png"></p>
+<h2 id="2-2-NVIC相关寄存器介绍"><a href="#2-2-NVIC相关寄存器介绍" class="headerlink" title="2.2-NVIC相关寄存器介绍"></a>2.2-NVIC相关寄存器介绍</h2><table>
+<thead>
+<tr>
+<th align="center">NVIC相关寄存器</th>
+<th align="center">位数</th>
+<th align="center">寄存器个数</th>
+<th align="center">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">中断使能寄存器(ISER)</td>
+<td align="center">32</td>
+<td align="center">8</td>
+<td align="center">每一位控制一个中断</td>
+</tr>
+<tr>
+<td align="center">中断除能寄存器(ICRE)</td>
+<td align="center">32</td>
+<td align="center">8</td>
+<td align="center">每一位控制一个中断</td>
+</tr>
+<tr>
+<td align="center">应用程序中断及复位控制寄存器(AIRCR)</td>
+<td align="center">32</td>
+<td align="center">1</td>
+<td align="center">位[10:8]控制优先级分组</td>
+</tr>
+<tr>
+<td align="center">中断优先级寄存器(IPR)</td>
+<td align="center">8</td>
+<td align="center">240</td>
+<td align="center">8个位对应一个中断，而STM32只使用高4位</td>
+</tr>
+<tr>
+<td align="center">除此之外，NVIC还有其他的功能如：中断挂起、解挂、激活标志等非常用功能。</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<h2 id="2-3-NVIC工作原理"><a href="#2-3-NVIC工作原理" class="headerlink" title="2.3-NVIC工作原理"></a>2.3-NVIC工作原理</h2><p><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/9470095f2fbb1c67c149dcc71ab8448.png"></p>
+<h2 id="2-4-STM32中断优先级基本概念"><a href="#2-4-STM32中断优先级基本概念" class="headerlink" title="2.4-STM32中断优先级基本概念"></a>2.4-STM32中断优先级基本概念</h2><p>1、抢占优先级(pre):高抢占优先级可以打断正在执行的低抢占优先级中断（嵌套），数字越低优先级越高。<br>2、相应优先级(sub):当抢占优先级相同时，响应优先级高的先执行，但不能相互打断。<br>3、自然优先级：抢占和响应优先级都相同的情况下，自然优先级越高的越先执行。自然优先级指的是在中断向量表里的优先级。自然优先级可以在stm32f10x.h文件里有枚举类型IRQn_Type中查询到。</p>
+<h2 id="2-5-中断优先级分组"><a href="#2-5-中断优先级分组" class="headerlink" title="2.5-中断优先级分组"></a>2.5-中断优先级分组</h2><p>|优先级分组|AIRCR[10:8]|IPRx bit[7:4]分配|分配结果|<br>|：——：|：——：|：——：|：———————：|<br>|0|111|None:[7:4]|0位抢占优先级（可配置0级），4位响应优先级（可配置16级）|<br>|1|110|[7]:[6:4]|1位抢占优先级（可配置2级），3位响应优先级（可配置8级）|<br>|2|101|[7:6]:[5:4]|2位抢断优先级（可配置4级），2位响应优先级（可配置4级）|<br>|3|100|[7:5]:[4]|3位抢断优先级（可配置8级），1位响应优先级（可配置1级）|<br>|4|011|[7:4]:None|4位抢断优先级（可配置16级），0位响应优先级（可配置0级）|<br><font color="#dd0000">特别提示：一个工程中，一般只设置一次中断优先级分组</font><br />   </p>
+<h2 id="2-6-NVIC的使用"><a href="#2-6-NVIC的使用" class="headerlink" title="2.6-NVIC的使用"></a>2.6-NVIC的使用</h2><p><font color="#dd0000">1、定义一个NVIC_InitTypeDef结构体：</font></p>
+<pre><code> NVIC_InitTypeDef NVIC_InitStructure;
+</code></pre>
+<p><font color="#dd0000">2、设置分组：</font>使用misc.h文件中的初始化函数 NVIC_PriorityGroupConfig()进行分组。  </p>
+<pre><code>void NVIC_PriorityGroupConfig(uint32_t NVIC_PriorityGroup);
+</code></pre>
+<p><font color="#dd0000">3、配置NVIC结构体参数：</font><br />在misc.h文件前部有关于NVIC结构体的定义。</p>
+<pre><code>  typedef struct
+&#123;
+  uint8_t NVIC_IRQChannel;                    /*!&lt; Specifies the IRQ channel to be enabled or disabled.
+                                                   This parameter can be a value of @ref IRQn_Type 
+                                                   (For the complete STM32 Devices IRQ Channels list, please
+                                                    refer to stm32f10x.h file) */选择中断源
+
+  uint8_t NVIC_IRQChannelPreemptionPriority;  /*!&lt; Specifies the pre-emption priority for the IRQ channel
+                                                   specified in NVIC_IRQChannel. This parameter can be a value
+                                                   between 0 and 15 as described in the table @ref NVIC_Priority_Table */配置该中断源的抢断优先级
+
+  uint8_t NVIC_IRQChannelSubPriority;         /*!&lt; Specifies the subpriority level for the IRQ channel specified
+                                                   in NVIC_IRQChannel. This parameter can be a value
+                                                   between 0 and 15 as described in the table @ref NVIC_Priority_Table */配置该中断源的响应优先级
+
+  FunctionalState NVIC_IRQChannelCmd;         /*!&lt; Specifies whether the IRQ channel defined in NVIC_IRQChannel
+                                                   will be enabled or disabled. 
+                                                   This parameter can be set either to ENABLE or DISABLE */ 配置使能位，也就是中断总开关的打开/关闭  
+&#125; NVIC_InitTypeDef;
+</code></pre>
+<p>我们定义一个关于NVIC的结构体后就可以往里面写入配置参数。这里要注意的是中断源的选择在stm32f10x.h文件中有枚举类型IRQn_Type，从中选择就行，还要注意的是：</p>
+<pre><code>  EXTI0_IRQn                  = 6,      /*!&lt; EXTI Line0 Interrupt                                 */
+  EXTI1_IRQn                  = 7,      /*!&lt; EXTI Line1 Interrupt                                 */
+  EXTI2_IRQn                  = 8,      /*!&lt; EXTI Line2 Interrupt                                 */
+  EXTI3_IRQn                  = 9,      /*!&lt; EXTI Line3 Interrupt                                 */
+  EXTI4_IRQn                  = 10,     /*!&lt; EXTI Line4 Interrupt                                 */
+  EXTI9_5_IRQn                = 23,     /*!&lt; External Line[9:5] Interrupts                        */
+  EXTI15_10_IRQn              = 40,     /*!&lt; External Line[15:10] Interrupts                      */
+</code></pre>
+<p><font color="#dd0000">这里GPIO的5-9引脚共用一个中断源、10-15引脚共用一个中断源</font><br /><br><font color="#dd0000">4、初始化NVIC结构体</font><br />：其本质就是利用函数NVIC_Init()将配置好的NVIC结构体参数写入响应的寄存器中去。该函数定义在misc.h文件中。</p>
+<pre><code>void NVIC_Init(NVIC_InitTypeDef* NVIC_InitStruct);  
+</code></pre>
+<h1 id="3-0-EXTI"><a href="#3-0-EXTI" class="headerlink" title="3.0-EXTI"></a>3.0-EXTI</h1><h2 id="3-1-基本概念"><a href="#3-1-基本概念" class="headerlink" title="3.1-基本概念"></a>3.1-基本概念</h2><p>External(Extended)interrupt&#x2F;even Controller,外部(扩展)中断事件控制器。其包含20个产生时间&#x2F;中断请求的边缘检测器，即总共20条EXTI线(F1)，其中EXTI线0<del>15对应GPIO PIN0</del>15、EXTI线16对应PVD输出、EXTI线17对应PTC闹钟事件、EXTI线18对应USB OTG FS唤醒事件、EXTI线19对应以太网唤醒事件（仅互联型有，基础型无）<br>|线数|对应功能|备注|<br>|：—-：|：—————-：|：—————-：|<br>|EXTI线0<del>15|GPIO PIN0</del>15|  |<br>|EXTI线16|PVD输出|     |<br>|EXTI线17|PTC闹钟事件|  |<br>|EXTI线18|USB OTG FS唤醒事件|  |<br>|EXTI线19|以太网唤醒事件|仅互联型有，基础型无|<br>中断：要进入NVIC,有相应的中断服务函数，需要CPU处理。<br>事件:不进入nvic,仅用内部硬件自动控制的，如：TIM、DMA、ADC。  </p>
+<h2 id="3-2-EXTI主要特性"><a href="#3-2-EXTI主要特性" class="headerlink" title="3.2-EXTI主要特性"></a>3.2-EXTI主要特性</h2><p>F1&#x2F;F4&#x2F;F7系列：<br>每条EXTI线都可以单独配置：选择类型（中断或者事件类型）、触发方式（上升沿、下降沿或者双边沿触发）、支持软件触发、开启&#x2F;屏蔽、有挂起状态位。</p>
+<h2 id="3-3-EXTI工作原理"><a href="#3-3-EXTI工作原理" class="headerlink" title="3.3-EXTI工作原理"></a>3.3-EXTI工作原理</h2><p><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/d7e9307d97c58e0d8fcc5037b62cfe6.png"><br>需要重点掌握的寄存器：<br><font color="#dd0000">上升沿触发选择寄存器(EXTI_RTSR)：</font><br />选择或禁止EXTI某条线上的上升沿触发方式<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/8560d9c63af3375b5b16e9521df47d4.png"><br><font color="#dd0000">上升沿触发选择寄存器(EXTI_RTSR)：</font><br />选择或禁止EXTI某条线上的上升沿触发方式<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/f4c10913e600036e6d3c69245cc11d0.png"><br><font color="#dd0000">中断屏蔽寄存器(EXTI_IMR)：</font><br />选择屏蔽EXTI某条线上的中断请求<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/07b4f4509c571d901d3ba1592d796d7.png"><br><font color="#dd0000">挂起寄存器(EXTI_PR)：</font><br />EXTI某条线发生中断，则EXTI_PR的对应位会由硬件置1。在中断处理函数中要清楚该位，写入1即可清除。<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/e94cf2ded3c141db556dd66ad003f3c.png"></p>
+<h2 id="3-4-EXTI和IO的映射关系"><a href="#3-4-EXTI和IO的映射关系" class="headerlink" title="3.4-EXTI和IO的映射关系"></a>3.4-EXTI和IO的映射关系</h2>
+      
+    </div>
+
+    
+    
+    
+
+     
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/28/STM32%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -868,7 +1040,7 @@ Delay(0xFFFFF);
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-02-23 11:18:30" itemprop="dateModified" datetime="2023-02-23T11:18:30+08:00">2023-02-23</time>
+                <time title="修改时间：2023-03-03 18:34:08" itemprop="dateModified" datetime="2023-03-03T18:34:08+08:00">2023-03-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -886,7 +1058,7 @@ Delay(0xFFFFF);
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>413</span>
+              <span>491</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -905,7 +1077,7 @@ Delay(0xFFFFF);
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>stm32是32位CPU,CPU内部及外部一次最多可处理32位二进制数据，内存总线也是32位。<br>单片机的内存单元是一个字节，也就是8bite。CPU一次读取数据就要读取32位数据，也就是4字节，读取一个寄存器的信息，所以一个寄存器应占有4字节。<br>注意：寄存器地址！&#x3D;内存地址，寄存器地址只是内存空间的编号，他不占用寄存器的物理空间，根据这个编号CPU可以改变寄存器内部的实参（利用指针）。stm32能表示4GB的内存空间，并不意味着它有$2^{32}$个地址，实际理论上只有$2^{16}$个地址。<br>而正因为寄存器的地址偏移4，如果定义一个寄存器的类型为(unsigned int)就正好在内存中占据4个字节，而一个内存单元就是一个字节，分配一个地址，那4个字节就正好每次偏移4个地址，而且又符合结构体的内对其，所以我们常将寄存器定义在一个结构体中，通过访问&#x2F;赋值结构体成员来访问&#x2F;赋值寄存器。如图所示：<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/51af7831294100c41a786bba9ca7dd5.png"></p>
+          <p>stm32是32位CPU,CPU内部及外部一次最多可处理32位二进制数据，内存总线也是32位。<br>单片机的内存单元是一个字节，也就是8bite。CPU一次读取数据就要读取32位数据，也就是4字节，读取一个寄存器的信息，所以一个寄存器应占有4字节。<br>注意：寄存器地址！&#x3D;内存地址，寄存器地址只是内存空间的编号，他不占用寄存器的物理空间，根据这个编号CPU可以改变寄存器内部的实参（利用指针）。stm32能表示4GB的内存空间，并不意味着它有$2^{32}$个地址，实际理论上只有$2^{16}$个地址。<br>我们所说的地址0x0000 0001这里的1并不是1位，而是一个字节，因为单片机存储的最小单元是一个字节8位，问们给内存编地址增量1指的是最小内存单元增加1。<br>而正因为寄存器的地址偏移4，如果定义一个寄存器的类型为(unsigned int)就正好在内存中占据4个字节，而一个内存单元就是一个字节，分配一个地址，那4个字节就正好每次偏移4个地址，而且又符合结构体的内对其，所以我们常将寄存器定义在一个结构体中，通过访问&#x2F;赋值结构体成员来访问&#x2F;赋值寄存器。如图所示：<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/51af7831294100c41a786bba9ca7dd5.png"></p>
 
       
     </div>
@@ -1299,7 +1471,7 @@ Delay(0xFFFFF);
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1369,12 +1541,12 @@ Delay(0xFFFFF);
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">10k</span>
+    <span title="站点总字数">14k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">9 分钟</span>
+    <span title="站点阅读时长">13 分钟</span>
 </div>
         
 
