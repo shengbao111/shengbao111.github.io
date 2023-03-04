@@ -235,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-03-04 18:18:01" itemprop="dateModified" datetime="2023-03-04T18:18:01+08:00">2023-03-04</time>
+                <time title="修改时间：2023-03-04 18:21:21" itemprop="dateModified" datetime="2023-03-04T18:21:21+08:00">2023-03-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -468,7 +468,7 @@ EXTI_InitStructure.EXTI_LineCmd = ENABLE;                 /*中断使能*/
 <p><strong>4、初始化结构体：</strong>本质是将第三步配置好的参数写入相应的寄存器中，只不过将这一步用库函数封装了。</p>
 <pre><code>EXTI_Init(&amp;EXTI_InitStructure);
 </code></pre>
-<h1 id="4-0-GPIO"><a href="#4-0-GPIO" class="headerlink" title="4.0-GPIO"></a>4.0-GPIO</h1><h2 id="4-1-GPIO的配置"><a href="#4-1-GPIO的配置" class="headerlink" title="4.1-GPIO的配置"></a>4.1-GPIO的配置</h2><p><strong>1、创建一GPIO结构体：</strong>在stm32f10x_gpio.h文件中有关于gpio结构体的定义。注意结构体成员中只有要配置的GPIO引脚(0<del>15)而没有要配置的GPIO端口。端口的参数(A</del>G)在GPIO初始化函数中调用。</p>
+<h1 id="4-0-GPIO"><a href="#4-0-GPIO" class="headerlink" title="4.0-GPIO"></a>4.0-GPIO</h1><h2 id="4-1-GPIO的配置"><a href="#4-1-GPIO的配置" class="headerlink" title="4.1-GPIO的配置"></a>4.1-GPIO的配置</h2><p><strong>1、创建一GPIO结构体：</strong>在stm32f10x_gpio.h文件中有关于gpio结构体的定义。注意结构体成员中只有要配置的GPIO引脚(0到15)而没有要配置的GPIO端口。端口的参数(A到G)在GPIO初始化函数中调用。</p>
 <pre><code>typedef struct
 &#123;
   uint16_t GPIO_Pin;             /*!&lt; Specifies the GPIO pins to be configured.
@@ -1688,7 +1688,7 @@ Delay(0xFFFFF);
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">17k</span>
+    <span title="站点总字数">18k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
