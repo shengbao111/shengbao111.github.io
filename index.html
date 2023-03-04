@@ -235,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-03-04 12:31:08" itemprop="dateModified" datetime="2023-03-04T12:31:08+08:00">2023-03-04</time>
+                <time title="修改时间：2023-03-04 18:18:01" itemprop="dateModified" datetime="2023-03-04T18:18:01+08:00">2023-03-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -253,14 +253,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>6.6k</span>
+              <span>7.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>6 分钟</span>
+              <span>7 分钟</span>
             </span>
 
         </div>
@@ -354,7 +354,12 @@
 </tr>
 </tbody></table>
 <p><font color="#dd0000">特别提示：一个工程中，一般只设置一次中断优先级分组</font><br />   </p>
-<h2 id="2-6-NVIC的使用"><a href="#2-6-NVIC的使用" class="headerlink" title="2.6-NVIC的使用"></a>2.6-NVIC的使用</h2><p><strong>1、创建一个NVIC_InitTypeDef结构体：</strong></p>
+<h2 id="2-6-NVIC的使用"><a href="#2-6-NVIC的使用" class="headerlink" title="2.6-NVIC的使用"></a>2.6-NVIC的使用</h2><p>在创建NVIC配置函数时，使用static关键字，意味着这个函数只能被和此函数同在一个头文件中的函数调用。</p>
+<pre><code>static void EXTI_NVIC_Config(void)
+&#123;
+&#125;
+</code></pre>
+<p><strong>1、创建一个NVIC_InitTypeDef结构体：</strong></p>
 <pre><code> NVIC_InitTypeDef NVIC_InitStructure;
 </code></pre>
 <p><strong>2、设置分组：</strong>使用misc.h文件中的初始化函数 NVIC_PriorityGroupConfig()进行分组。  </p>
@@ -390,7 +395,7 @@
   EXTI9_5_IRQn                = 23,     /*!&lt; External Line[9:5] Interrupts                        */
   EXTI15_10_IRQn              = 40,     /*!&lt; External Line[15:10] Interrupts                      */
 </code></pre>
-<p><font color="#dd0000">这里GPIO的5-9引脚共用一个中断源、10-15引脚共用一个中断源</font><br /><br><font color="#dd0000">4、初始化NVIC结构体</font><br />：其本质就是利用函数NVIC_Init()将配置好的NVIC结构体参数写入响应的寄存器中去。该函数定义在misc.h文件中。</p>
+<p><font color="#dd0000">这里GPIO的5-9引脚共用一个中断源、10-15引脚共用一个中断源</font><br /><br><font color="#dd0000">4、初始化NVIC结构体：</font><br />其本质就是利用函数NVIC_Init()将配置好的NVIC结构体参数写入响应的寄存器中去。该函数定义在misc.h文件中。</p>
 <pre><code>void NVIC_Init(NVIC_InitTypeDef* NVIC_InitStruct);  
 </code></pre>
 <h1 id="3-0-EXTI"><a href="#3-0-EXTI" class="headerlink" title="3.0-EXTI"></a>3.0-EXTI</h1><h2 id="3-1-基本概念"><a href="#3-1-基本概念" class="headerlink" title="3.1-基本概念"></a>3.1-基本概念</h2><p>External(Extended)interrupt&#x2F;even Controller,外部(扩展)中断事件控制器。其包含20个产生时间&#x2F;中断请求的边缘检测器，即总共20条EXTI线(F1)，其中EXTI线0<del>15对应GPIO PIN0</del>15、EXTI线16对应PVD输出、EXTI线17对应PTC闹钟事件、EXTI线18对应USB OTG FS唤醒事件、EXTI线19对应以太网唤醒事件（仅互联型有，基础型无）</p>
@@ -481,6 +486,21 @@ EXTI_InitStructure.EXTI_LineCmd = ENABLE;                 /*中断使能*/
 </code></pre>
 <p><strong>3、配置结构体成员的参数</strong><br>引脚选用相应的引脚即可。<br>输入模式选用浮空输入：输入信号经过施密特触发器接入输入数据存储器。当无信号输入时，电压不确定。因为浮空输入既高阻输入，可以认为输入端口阻抗无穷大，这样可以检测到微弱的信号。（相当于电压表测电压，如果电压表内阻不够大而外部阻抗比较大，则电压表分压会比较小）。此时输入高电平即高电平，输入低电平即低电平。但是外界没有输入时输入电平却容易受到外界电磁以及各种玄学干扰的影响。如按键采用浮空输入，则在按键按下时输入电平为低，但是当松开按键时输入端口悬空，外界有微弱的干扰都会被端口检测到。此时端口可能高，也可能低。<br>因为是输入所以没有模式的配置，可以删除。<br>**4、初始化结构体:**利用函数初始化结构体，本质就是将配置的结构体成员参数写入相应的寄存器中去，这一步封装成了个函数。</p>
 <pre><code>void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
+</code></pre>
+<h1 id="5-0-中断服务函数"><a href="#5-0-中断服务函数" class="headerlink" title="5.0-中断服务函数"></a>5.0-中断服务函数</h1><p>中断服务函数定义在stm32f10x_it.c文件中，包括以下几个部分：<br><strong>1、中断服务函数名：</strong>中断服务函数名在启动文件startup_stm32f10x_hd.s中的中断向量表里，名称不能随意更改。中断发生后自动跳转到对应的中断服务函数中去。<br><strong>2、判断中断是否真发生：</strong>在stm32f10x_exti.h文件中调用函数如下，判断是否真实发生中断。  </p>
+<pre><code>ITStatus EXTI_GetITStatus(uint32_t EXTI_Line);
+</code></pre>
+<p>其中的ITStarus是一个枚举类型的关键字</p>
+<pre><code>typedef enum &#123;RESET = 0, SET = !RESET&#125; FlagStatus, ITStatus;  
+</code></pre>
+<p><strong>3、清楚中断标志位：</strong>防止一直处于中断状态，调用stm32f10x_exti.c文件中的函数清楚状态标志位。</p>
+<pre><code>void EXTI_ClearITPendingBit(uint32_t EXTI_Line)
+&#123;
+  /* Check the parameters */
+  assert_param(IS_EXTI_LINE(EXTI_Line));
+  
+  EXTI-&gt;PR = EXTI_Line;
+&#125;
 </code></pre>
 
       
@@ -1673,7 +1693,7 @@ Delay(0xFFFFF);
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">15 分钟</span>
+    <span title="站点阅读时长">16 分钟</span>
 </div>
         
 
