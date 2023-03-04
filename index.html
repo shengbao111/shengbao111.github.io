@@ -235,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-03-04 18:21:21" itemprop="dateModified" datetime="2023-03-04T18:21:21+08:00">2023-03-04</time>
+                <time title="修改时间：2023-03-04 20:48:42" itemprop="dateModified" datetime="2023-03-04T20:48:42+08:00">2023-03-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -253,7 +253,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>7.2k</span>
+              <span>7.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -354,7 +354,7 @@
 </tr>
 </tbody></table>
 <p><font color="#dd0000">特别提示：一个工程中，一般只设置一次中断优先级分组</font><br />   </p>
-<h2 id="2-6-NVIC的使用"><a href="#2-6-NVIC的使用" class="headerlink" title="2.6-NVIC的使用"></a>2.6-NVIC的使用</h2><p>在创建NVIC配置函数时，使用static关键字，意味着这个函数只能被和此函数同在一个头文件中的函数调用。</p>
+<h2 id="2-6-NVIC的使用"><a href="#2-6-NVIC的使用" class="headerlink" title="2.6-NVIC的使用"></a>2.6-NVIC的使用</h2><p>在创建NVIC配置函数时，使用static关键字，意味着这个函数只能被和此函数同在一个头文件中的函数调用。NVIC与EXTI一样自动开启时钟，不需要手动开启时钟。</p>
 <pre><code>static void EXTI_NVIC_Config(void)
 &#123;
 &#125;
@@ -456,7 +456,7 @@
                                          This parameter can be set either to ENABLE or DISABLE */ 
 &#125;EXTI_InitTypeDef;
 </code></pre>
-<p><strong>2、开启时钟：</strong>查阅stm32中文手册中存储器与总线设置可知，EXTI与GPIOA都挂载在AHP2上。stm32f10x_rcc.h上有AHB2时钟开启函数<br>    void RCC_APB2PeriphResetCmd(uint32_t RCC_APB2Periph, FunctionalState NewState);<br><strong>3、选择输入信号源：</strong>这个函数中配置了AFIO中的EXTICR寄存器，用于EXTIx线的外部中断输入源。</p>
+<p><strong>2、开启时钟：</strong>查阅stm32中文手册中存储器与总线设置可知，AFIO与GPIOA都挂载在AHP2上。stm32f10x_rcc.h上有AHB2时钟开启函数,注意EXTI和NVIC的时钟是自动开启无需手动开启，这里开启的是AFIO的时钟。<br>    void RCC_APB2PeriphResetCmd(uint32_t RCC_APB2Periph, FunctionalState NewState);<br><strong>3、选择输入信号源：</strong>这个函数中配置了AFIO中的EXTICR寄存器，用于EXTIx线的外部中断输入源。</p>
 <pre><code>GPIO_EXTILineConfig(KEY1_INT_EXTI_PORTSOURCE, KEY1_INT_EXTI_PINSOURCE); 
 </code></pre>
 <p><strong>3、配置步骤一创建的EXTI结构体中的参数：</strong>相应的参数在stm32f10x_exti.h文件中都有枚举。这里的选择信号源指的是对中断信号源开启或者屏蔽，用于初始化EXTI-&gt;EMR或EXTI-&gt;IMR这两个寄存器。</p>
@@ -481,7 +481,7 @@ EXTI_InitStructure.EXTI_LineCmd = ENABLE;                 /*中断使能*/
                                       This parameter can be a value of @ref GPIOMode_TypeDef */
 &#125;GPIO_InitTypeDef; 
 </code></pre>
-<p><strong>2、开启时钟：</strong> 配置任何外设都要先开启时钟。在stm32f10x_rcc.c文件中有时钟开启函数</p>
+<p><strong>2、开启时钟：</strong> 每个外设都配备了外设时钟的开关，当我们不使用某个外设时，可以把这个外设时钟关闭，从而降低 STM32 的整体功耗。因此，在我们使用外设前，必须要开启相应外设的时钟。在stm32f10x_rcc.c文件中有时钟开启函数</p>
 <pre><code>void RCC_APB2PeriphClockCmd(uint32_t RCC_APB2Periph, FunctionalState NewState)  
 </code></pre>
 <p><strong>3、配置结构体成员的参数</strong><br>引脚选用相应的引脚即可。<br>输入模式选用浮空输入：输入信号经过施密特触发器接入输入数据存储器。当无信号输入时，电压不确定。因为浮空输入既高阻输入，可以认为输入端口阻抗无穷大，这样可以检测到微弱的信号。（相当于电压表测电压，如果电压表内阻不够大而外部阻抗比较大，则电压表分压会比较小）。此时输入高电平即高电平，输入低电平即低电平。但是外界没有输入时输入电平却容易受到外界电磁以及各种玄学干扰的影响。如按键采用浮空输入，则在按键按下时输入电平为低，但是当松开按键时输入端口悬空，外界有微弱的干扰都会被端口检测到。此时端口可能高，也可能低。<br>因为是输入所以没有模式的配置，可以删除。<br>**4、初始化结构体:**利用函数初始化结构体，本质就是将配置的结构体成员参数写入相应的寄存器中去，这一步封装成了个函数。</p>
@@ -493,7 +493,7 @@ EXTI_InitStructure.EXTI_LineCmd = ENABLE;                 /*中断使能*/
 <p>其中的ITStarus是一个枚举类型的关键字</p>
 <pre><code>typedef enum &#123;RESET = 0, SET = !RESET&#125; FlagStatus, ITStatus;  
 </code></pre>
-<p><strong>3、清楚中断标志位：</strong>防止一直处于中断状态，调用stm32f10x_exti.c文件中的函数清楚状态标志位。</p>
+<p><strong>3、清楚中断标志位：</strong>防止一直处于中断状态，调用stm32f10x_exti.c文件中的函数清除状态标志位。</p>
 <pre><code>void EXTI_ClearITPendingBit(uint32_t EXTI_Line)
 &#123;
   /* Check the parameters */
