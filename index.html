@@ -229,7 +229,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-03-05 11:01:59 / 修改时间：13:57:29" itemprop="dateCreated datePublished" datetime="2023-03-05T11:01:59+08:00">2023-03-05</time>
+              <time title="创建时间：2023-03-05 11:01:59 / 修改时间：17:45:17" itemprop="dateCreated datePublished" datetime="2023-03-05T11:01:59+08:00">2023-03-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.9k</span>
+              <span>4.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -347,7 +347,31 @@
 <pre><code>#include &quot;stm32f10x.h&quot; 
 #include &quot;core_cm3.h&quot;
 </code></pre>
-<h2 id="2-6-微秒-x2F-毫秒级延时函数-使用中断函数"><a href="#2-6-微秒-x2F-毫秒级延时函数-使用中断函数" class="headerlink" title="2.6-微秒&#x2F;毫秒级延时函数(使用中断函数)"></a>2.6-微秒&#x2F;毫秒级延时函数(使用中断函数)</h2>
+<h2 id="2-6-微秒-x2F-毫秒级延时函数-使用中断服务函数"><a href="#2-6-微秒-x2F-毫秒级延时函数-使用中断服务函数" class="headerlink" title="2.6-微秒&#x2F;毫秒级延时函数(使用中断服务函数)"></a>2.6-微秒&#x2F;毫秒级延时函数(使用中断服务函数)</h2><p><strong>毫秒级延时函数：</strong><br>1、先在bsp_systick.c文件中定义一个全局变量（在函数体外部、文件顶部定义），如下：</p>
+<pre><code>uint32_t global_ms;
+</code></pre>
+<p>2、在bsp_systick.c定义延时函数，如下：</p>
+<pre><code>void Delay_Interrupt__ms(uint32_t ms)
+&#123;
+    SysTick_Config(72000);
+    global_ms=ms;
+    while(global_ms!=0);
+&#125;
+</code></pre>
+<p>3、在stm32f10x_it.c文件头部、终端服务函数外部引用全局变量：</p>
+<pre><code>extern uint32_t global_ms;//定义的全局变量秒数
+</code></pre>
+<p>4、在stm32f10x_it.c文件中编写中断服务函数：</p>
+<pre><code>void SysTick_Handler(void)
+&#123;
+    if(global_ms)
+    &#123;
+        global_ms--;
+    &#125;
+&#125;
+</code></pre>
+<p><strong>注意：</strong><br>1、也可将中断服务函数写在bsp_systick.c,则此时无需语句”extern uint32_t global_ms;”,只需将变量定义在函数体外即可默认为全局变量。<br>2、在终端服务函数中无需再配置滴答计时器SysTick_Config()，因为它是自动重装。<br>3、微秒级延时函数同理不再赘述。</p>
+
       
     </div>
 
