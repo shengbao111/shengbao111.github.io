@@ -235,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-03-11 15:55:30" itemprop="dateModified" datetime="2023-03-11T15:55:30+08:00">2023-03-11</time>
+                <time title="修改时间：2023-03-19 23:29:55" itemprop="dateModified" datetime="2023-03-19T23:29:55+08:00">2023-03-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -508,7 +508,7 @@ USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 <p>2、如果此时USART没有在发送数据，处于空闲状态，对USART_DR寄存器的写操作直接把数据放进移位寄存器，数据传输开始，TXE位立即被置起。</p>
 <p>3、当一帧发送完成时(停止位发送后)并且设置了TXE位，TC位被置起(TC位为1)，如果USART_CR1寄存器中的TCIE位被置起时(TCIE位为1)，则会产生中断。</p>
 <p>4、使用下列软件过程清除TC位：<br>&lt;1&gt;．读一次USART_SR寄存器；<br>&lt;2&gt;．写一次USART_DR寄存器。<br>TC位也可以通过软件对它写’0’来清除。此清零方式只推荐在多缓冲器通信模式下使用。<br><font color="#dd0000"><strong>12、对于整个发送过程中所使用到的寄存器、中断的一些理解：</strong></font><br /><br>1、void USART_Config(void)函数配置<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/3216a009a4a7a6ec11bc9d1110fefa4.png"/><br>2、发送数据<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/82c7399fa6576a64a4fbad3d83ff1fa.png"/></p>
-<h4 id="2-3-3-2-接收器"><a href="#2-3-3-2-接收器" class="headerlink" title="2.3.3.2-接收器"></a>2.3.3.2-接收器</h4><p>如果将USART_CR1寄存器的RE位置1，使能USART接收，使得接收器在RX线开始搜索起始位。在确定到起始位后就根据RX线电平状态把数据存放在接收移位寄存器内。接收完成后就把接收移位寄存器数据移到RDR内，并把USART_SR寄存器的RXNE位置1，同时如果USART_CR2寄存器的RXNEIE置1的话可以产生中断。   </p>
+<h4 id="2-3-3-2-接收器"><a href="#2-3-3-2-接收器" class="headerlink" title="2.3.3.2-接收器"></a>2.3.3.2-接收器</h4><p>如果将USART_CR1寄存器的RE位置1，使能USART接收，使得接收器在RX线开始搜索起始位。在确定到起始位后就根据RX线电平状态把数据存放在接收移位寄存器内。接收完成后就把接收移位寄存器数据移到RDR内，并把USART_SR寄存器的RXNE位置1，同时如果USART_CR2寄存器的RXNEIE置1的话可以产生中断。<br>**注意：USART的所有中断共用一个中断服务函数DEBUG_USART_IRQHandler();所以在该中断函数中要有对中断标志位进行相应的判断，从而得知对应得中断类型。 **  </p>
 <p><strong>字符接收：</strong><br>● RXNE位被置1。它表明移位寄存器的内容被转移到RDR。换句话说，数据已经被接收并且可以被读出。<br>● 如果RXNEIE位被设置，产生中断。<br>● 在多缓冲器通信时，RXNE在每个字节接收后被置起，并由DMA对数据寄存器的读操作而清零。<br>● 在单缓冲器模式里，由软件读USART_DR寄存器完成对RXNE位清除,RXNE标志也可以通过对它写0来清除。RXNE位必须在下一字符接收结束前(接收移位寄存器接收满)被清零(要将数据读出)，以避免溢出错误(移位寄存器的数据会被覆盖)。</p>
 <p><strong>溢出错误：</strong><br>如果RXNE还没有被复位（还没有读出DR寄存器的数据），又接收到一个字符，则发生溢出错误,数据只有当RXNE位被清零后才能从移位寄存器转移到RDR寄存器。RXNE标记是接收到每个字节后被置位的。如果下一个数据已被收到或先前DMA请求还没被服务时，RXNE标志仍是1，溢出错误产生。  </p>
 <p><strong>溢出错误：</strong><br>● ORE位被置位。<br>● RDR内容将不会丢失。读USART_DR寄存器仍能得到先前的数据。<br>● 移位寄存器中以前的内容将被覆盖。随后接收到的数据都将丢失。<br>● 如果RXNEIE位被设置或EIE和DMAR位都被设置，中断产生。<br>● 顺序执行对USART_SR和USART_DR寄存器的读操作，可复位ORE位。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/862ae16a75795c1caccea3e91cafd25.png"/></p>
@@ -2118,7 +2118,7 @@ Delay(0xFFFFF);
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">35k</span>
+    <span title="站点总字数">36k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
