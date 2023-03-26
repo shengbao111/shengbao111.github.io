@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="IIC(Inter－Integrated Circuit)总线是一种由NXP（原PHILIPS）公司开发的两线式串行总线，用于连接微控制器及其外围设备。多用于主控制器和从器件间的主从通信，在小数据量场合使用，传输距离短，任意时刻只能有一个主机等特性。在CPU与被控IC之间、IC与IC之间进行双向传送，高速IIC总线一般可达400kbps以上。PS： 这里要注意IIC是为了与低速设备通信而发明的，所">
+<meta property="og:type" content="article">
+<meta property="og:title" content="I2C">
+<meta property="og:url" content="http://example.com/2023/03/22/I2C/index.html">
+<meta property="og:site_name" content="胜哥爱周周">
+<meta property="og:description" content="IIC(Inter－Integrated Circuit)总线是一种由NXP（原PHILIPS）公司开发的两线式串行总线，用于连接微控制器及其外围设备。多用于主控制器和从器件间的主从通信，在小数据量场合使用，传输距离短，任意时刻只能有一个主机等特性。在CPU与被控IC之间、IC与IC之间进行双向传送，高速IIC总线一般可达400kbps以上。PS： 这里要注意IIC是为了与低速设备通信而发明的，所">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326112503.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326104919.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326105922.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326111930.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326113105.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326113405.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326113553.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230322230906.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230322231217.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326115115.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326115353.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326115902.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326120458.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326121825.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326122800.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326133948.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326134952.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326140249.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326141523.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326142434.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326142742.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326143150.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326192001.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326192400.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326192711.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326192731.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326194109.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326195302.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326200442.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326203857.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326204602.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326210259.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326210905.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326211400.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326212552.png">
+<meta property="og:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326213924.png">
+<meta property="article:published_time" content="2023-03-22T11:18:12.000Z">
+<meta property="article:modified_time" content="2023-03-26T14:07:56.722Z">
+<meta property="article:author" content="胜哥">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326112503.png">
+
+<link rel="canonical" href="http://example.com/2023/03/22/I2C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>I2C | 胜哥爱周周</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/rss2.xml" title="胜哥爱周周" type="application/rss+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">胜哥爱周周</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">很高兴认识你，请多多指教</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-resources">
+
+    <a href="/resources/" rel="section"><i class="download fa-fw"></i>资源</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/22/I2C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="胜哥">
+      <meta itemprop="description" content="仰望星空，脚踏实地">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胜哥爱周周">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          I2C
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-03-22 19:18:12" itemprop="dateCreated datePublished" datetime="2023-03-22T19:18:12+08:00">2023-03-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-26 22:07:56" itemprop="dateModified" datetime="2023-03-26T22:07:56+08:00">2023-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA/" itemprop="url" rel="index"><span itemprop="name">单片机</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>9.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>IIC(Inter－Integrated Circuit)总线是一种由NXP（原PHILIPS）公司开发的两线式串行总线，用于连接微控制器及其外围设备。多用于主控制器和从器件间的主从通信，在小数据量场合使用，传输距离短，任意时刻只能有一个主机等特性。<br>在CPU与被控IC之间、IC与IC之间进行双向传送，高速IIC总线一般可达400kbps以上。<br><strong>PS： 这里要注意IIC是为了与低速设备通信而发明的，所以IIC的传输速率比不上SPI。</strong></p>
+<h1 id="1-0-I2C协议"><a href="#1-0-I2C协议" class="headerlink" title="1.0-I2C协议"></a>1.0-I2C协议</h1><p>在计算机科学里，大部分复杂的问题都可以通过分层来简化。如芯片被分为内核层和片上外设；STM32 标准库则是在寄存器与用户代码之间的软件层。对于通讯协议，我们也以分层的方式来理解，最基本的是把它分为物理层和协议层。物理层规定通讯系统中具有机械、电子功能部分的特性，确保原始数据在物理媒体的传输。协议层主要规定通讯逻辑，统一收发双方的数据打包、解包标准。简单来说物理层规定我们用嘴巴还是用肢体来交流，协议层则规定我们用中文还是英文来交流。</p>
+<h2 id="1-1-I2C硬件协议"><a href="#1-1-I2C硬件协议" class="headerlink" title="1.1-I2C硬件协议"></a>1.1-I2C硬件协议</h2><h3 id="1-1-1-I2C-通讯设备之间的常用连接方式"><a href="#1-1-1-I2C-通讯设备之间的常用连接方式" class="headerlink" title="1.1.1-I2C 通讯设备之间的常用连接方式"></a>1.1.1-I2C 通讯设备之间的常用连接方式</h3><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326112503.png"/>  
+(1) 它是一个支持设备的总线。“总线”指多个设备共用的信号线。在一个 I2C 通讯总线中，可连接多个 I2C 通讯设备，支持多个通讯主机及多个通讯从机。
+    
+<p>(2) 一个 I2C 总线只使用两条总线线路，一条双向串行数据线SDA(Serial data) ，一条串行时钟线SCL(Serial clock line)。数据线即用来表示数据，时钟线用于数据收发同步。  </p>
+<p>(3) 每个连接到总线的设备都有一个独立的地址，主机可以利用这个地址进行不同设备之间的访问。  </p>
+<p>(4) 总线通过上拉电阻接到电源。当 I2C 设备空闲时，会输出高阻态，而当所有设备都空闲，都输出高阻态时，由上拉电阻把总线拉成高电平。 SCL和SDA都需要接上拉电阻 (大小由速度和容性负载决定一般在3.3K-10K之间) 保证数据的稳定性，减少干扰。 </p>
+<p>(5) 多个主机同时使用总线时，为了防止数据冲突，会利用仲裁方式决定由哪个设备占用总线，也就是设备在发送数据之前会检测I2C总线是否忙碌（忙碌总线应该为低电平）。  </p>
+<p>(6) 具有三种传输模式：标准模式传输速率为 100kbit&#x2F;s ，快速模式为 400kbit&#x2F;s ，高速模式下可达 3.4Mbit&#x2F;s，但目前大多 I2C 设备尚不支持高速模式。   </p>
+<p>(7) 连接到相同总线的 IC 数量受到总线的最大电容 400pF 限制 。  </p>
+<p>(8) IIC主设备功能：主要产生时钟，产生起始信号和停止信号。基本上谁控制时钟线（即控制SCL的电平高低变换）谁就是主设备。  </p>
+<p>(9) IIC从设备功能：可编程的IIC地址检测，停止位检测。  </p>
+<p>(10) IIC是半双工，而不是全双工 ，同一时间只可以单向通信。</p>
+<p>(11) 为了避免总线信号的混乱，要求各设备连接到总线的输出端时必须是漏极开路（OD）输出或集电极开路（OC）输出。(?)<br>(12) 每个连接到总线的设备都有一个独立的地址，主机可以利用这个地址进行不同设备之间的访问的，地址也是一个数据，主机可以同过SDA发送这个地址出去，则挂载在总线上的设备会自行匹配，匹配成功之后就可以互相通信了。</p>
+<h3 id="1-1-2-高阻态"><a href="#1-1-2-高阻态" class="headerlink" title="1.1.2-高阻态"></a>1.1.2-高阻态</h3><p>开漏输出模式时，上方的P-MOS管完全不工作。如果我们控制输出为0，低电平，则 P-MOS 管关闭，N-MOS 管导通，使输出接地。<br>若控制输出为 1 (它无法直接输出高电平)时，则P-MOS管和N-MOS管都关闭，所以引脚既不输出高电平，也不输出低电平，为高阻态。为正常使用时必须外部接上拉电阻。<br>也就是说，若有很多个开漏模式引脚连接到一起时，只有当所有引脚都输出高阻态，才由上拉电阻提供高电平，此高电平的电压为外部上拉电阻所接的电源的电压。若其中一个引脚为低电平，那线路就相当于短路接地，使得整条线路都为低电平，0伏。<br><strong>输出为1时：</strong><br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326104919.png" style="zoom: 50%;"/><br><strong>输出为0时</strong><br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326105922.png" style="zoom: 50%;"/><br>推挽输出模式一般应用在输出电平为0和3.3伏而且需要高速切换开关状态的场合。在STM32的应用中，除了必须用开漏模式的场合，我们都习惯使用推挽输出模式。<br>开漏输出一般应用在 I2C、SMBUS 通讯等需要“线与”功能的总线电路中。除此之外，还用在电平不匹配的场合，如需要输出 5 伏的高电平，就可以在外部接一个上拉电阻，上拉电源为 5伏，并且把 GPIO 设置为开漏模式，当输出高阻态时，由上拉电阻和电源向外输出5伏的电平。  </p>
+<h3 id="1-1-3-复用功能开漏"><a href="#1-1-3-复用功能开漏" class="headerlink" title="1.1.3-复用功能开漏"></a>1.1.3-复用功能开漏</h3><p>由于STM32的 GPIO引脚具有第二功能，因此当使用复用功能的时候，也就是通过其他外设复用功能输出信号与 GPIO 数据寄存器一起连接到双MOS管电路的输入，其中梯形结构是用来选择使用复用功能还是普通IO口功能。例如我们使用USART串口通讯时，需要用到某个GPIO引脚作为通讯发送引脚，这个时候就可以把该GPIO 引脚配置成USART串口复用功能，由串口外设控制该引脚，发送数据。<br>复用功能模式中，输出使能，输出速度可配置，可工作在开漏模式， 但是输出信号源于其它外设（来自I2C外设），输出数据寄存器GPIOx_ODR无效；输入可用，可以通过输入数据寄存器可获取I&#x2F;O实际状态，但一般直接用外设的寄存器来获取该数据信号。<br>这里SMT32，I2C外设的两个引脚SDA,SCL就要配置成复用功能的开漏输出模式，输出信号源于I2C外设。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326111930.png" style="zoom: 50%;"/></p>
+<h2 id="1-2-I2C软件协议"><a href="#1-2-I2C软件协议" class="headerlink" title="1.2-I2C软件协议"></a>1.2-I2C软件协议</h2><p>I2C的协议定义了通讯的起始和停止信号、数据有效性、响应、仲裁、时钟同步和地址广播等环节。  </p>
+<h3 id="1-2-1-I2C基本读写过程"><a href="#1-2-1-I2C基本读写过程" class="headerlink" title="1.2.1-I2C基本读写过程"></a>1.2.1-I2C基本读写过程</h3><p>这些图表示的是主机和从机通讯时，SDA 线的数据包序列。其中 S 表示由主机的 I2C 接口产生的传输起始信号(S)，这时连接到 I2C 总线上的所有从机都会接收到这个信号。<br>起始信号产生后，所有从机就开始等待主机紧接下来 广播 的从机地址信号(SLAVE_ADDRESS)。在 I2C 总线上，每个设备的地址都是唯一的，当主机广播的地址与某个设备地址相同时，这个设备就被选中了，没被选中的设备将会忽略之后的数据信号。根据 I2C 协议，这个从机地址可以是 7 位或 10 位。<br>在地址位之后，是传输方向的选择位，该位为 0 时，表示后面的数据传输方向是由主机传输至从机，即主机向从机写数据。该位为 1 时，则相反，即主机由从机读数据。<br>从机接收到匹配的地址后，主机或从机会返回一个应答(ACK)或非应答(NACK)信号，只有接收到应答信号后，主机才能继续发送或接收数据。<br><strong>（一）主机写数据到从机：</strong><br>若配置的方向传输位为“写数据”方向，即第一幅图的情况，广播完地址，接收到应答信号后，主机开始正式向从机传输数据(DATA)，数据包的大小为 8 位，主机每发送完一个字节数据，都要等待从机的应答信(ACK)，重复这个过程，可以向从机传输 N 个数据，这个 N 没有大小限制。当数据传输结束时，主机向从机发送一个停止传输信号(P)，表示不再传输数据。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326113105.png"/><br>阴影：数据由主机传输至从机。<br>空白：数据由从机传输至主机。<br>S：传输开始信号。<br>SLAVE_ADDRESS:从机地址。<br>Data:发送的信号。<br>A&#x2F;A：应答(ACK)或非应答(NACK)信号。<br><strong>（二）主机读数据到从机：</strong><br>若配置的方向传输位为“读数据”方向，即第二幅图的情况，广播完地址，接收到应答信号后，从机开始向主机返回数据(DATA)，数据包大小也为 8 位，从机每发送完一个数据，都会等待主机的应答信号(ACK)，重复这个过程，可以返回 N 个数据，这个 N 也没有大小限制。当主机希望停止接收数据时，就向从机返回一个非应答信号(NACK)，则从机自动停止数据传输。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326113405.png"/>注意：数据接收方要产生应答信号（代表我还要数据）或非应答信号（我不要要数据了），不一定就是主机或从机某一个产生。<br><strong>（三）通讯复合格式：</strong><br>除了基本的读写，I2C 通讯更常用的是复合格式，即第三幅图的情况，该传输过程有两次起始信号(S)。一般在第一次传输中，主机通过 SLAVE_ADDRESS 寻找到从设备后，发送一段“数据”，这段数据通常用于表示从设备内部的寄存器或存储器地址(注意区分它与 SLAVE_ADDRESS 的区别)；在第二次的传输中，对该地址的内容进行读或写。也就是说，第一次通讯是告诉从机读写地址，第二次则是读写的实际内容。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326113553.png"/>第一次通讯是确定读写从机设备内部寄存器或存储器的地址，第二次则是读或写上一次确定内部寄存器或存储器的地址上面的数据。</p>
+<h3 id="1-2-2-I2C读写过程中电平信号"><a href="#1-2-2-I2C读写过程中电平信号" class="headerlink" title="1.2.2-I2C读写过程中电平信号"></a>1.2.2-I2C读写过程中电平信号</h3><p>I2C总线的SDA和SCL两条信号线同时处于高电时，则为总线空闲状态，所有挂载在总线上的设备都输出高阻态（相当于断开与总线的连接），两条总线被上拉电阻的把电平拉高。<br><strong>（一）通讯的起始和停止信号:</strong><br>• 当 SCL 线是高电平时 SDA 线从高电平向低电平切换，这个情况表示通讯的起始。<br>• 当 SCL 是高电平时 SDA 线由低电平向高电平切换，表示通讯的停止。<br>• 起始和停止信号一般由主机产生。<br>• <font color="#dd0000">起始信号和停止信号是在SCL 是高电平期间，SDA线电平切换的过程，而不是单纯的高低电平。</font><br /><br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230322230906.png" style="zoom: 50%;"/><br><strong>（二）数据有效性：</strong><br>I2C使用SDA信号线来传输数据，使用SCL信号线进行数据同步。SDA数据线在SCL的每个时钟周期传输一位数据。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230322231217.png" style="zoom: 50%;"/><br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326115115.png" style="zoom: 50%;"/><br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326115353.png" style="zoom: 50%;"/><br>• SCL为高电平的时候SDA表示的数据有效，即此时的SDA为高电平时表示数据“1”，为低电平时表示数据“0”。<br>• 当SCL为低电平时，SDA的数据无效，一般在这个时候SDA进行电平切换，为下一次表示数据做好准备。<br>• 当SCL为高电平的时候不允许SDA有电平的切换，否则会被认为是起始或停止信号，而非数据信号。<br>• 起始信号、终止信号、数据信号都是在SCL处于高电平有效，只不过起始信号是SDA处于下降沿有效、终止信号是SDA处于上升沿有效。<br>• 总之SCK必须处于高电平时，SDA的开始信号（下降沿）、数据信号（高低电平）、结束信号（上升沿）才有效。SCK处于低电平的时候，SDA进行高低电平的切换。<br><strong>（三）地址及数据方向：</strong><br>• I2C总线上的每个设备都有自己的独立地址，主机发起通讯时，通过SDA信号线发送设备地址(SLAVE_ADDRESS)来查找从机。设备地址可以是7位或10位。<br>• 紧跟设备地址的一个数据位R&#x2F;W用来表示数据传输方向，数据方向位为“1”时表示主机由从机读数据，该位为“0”时表示主机向从机写数据。<br>• 读数据方向时，主机会释放对 SDA 信号线的控制，由从机控制 SDA 信号线（向主机发送数据），主机接收信号，写数据方向时，SDA 由主机控制（向从机发送数据），从机接收信号。<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326115902.png"/><br><strong>响应&#x2F;应答：</strong><br>I2C的数据和地址传输都带响应。响应包括“应答(ACK)”和“非应答(NACK)”两种信号。<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326120458.png"/>传输时主机产生时钟，在第9个时钟时，数据发送端会释放SDA的控制权，由数据接收端控制SDA，若SDA为高电平，表示非应答信号(NACK)，低电平表示应答信号(ACK)。 SDA线上的数据在SCL时钟“高”期间必须是稳定的，只有当SCL线上的时钟信号为低时，数据线上的“高”或“低”状态才可以改变。输出到SDA线上的每个字节必须是8位，数据传送时，先传送最高位（MSB），每一个被传送的字节后面都必须跟随一位应答位（即一帧共有9位）。<br>当一个字节按数据位从高位到低位的顺序传输完后，将SDA线拉高（即释放SDA线的控制权）。紧接着从设备将拉低SDA线，回传给主设备一个应答位ACK， 此时才认为一个字节真正的被传输完成。<br>SDA 为高电平：表示非应答信号(NACK)<br>SDA为低电平：表示应答信号(ACK)  </p>
+<p>为什么数据发送端要释放 SDA 的控制权（将SDA总线置为高电平）：<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326121825.png"/></p>
+<h1 id="2-0-硬件I2C通讯逻辑"><a href="#2-0-硬件I2C通讯逻辑" class="headerlink" title="2.0-硬件I2C通讯逻辑"></a>2.0-硬件I2C通讯逻辑</h1><p>硬件I2C通讯实验BUG太多了，总是卡在某个事件上，所以仅供学习用，一般实际过程不会采用硬件I2C，而使用软件I2C。<br><strong>硬件 I2C：</strong><br>是指直接利用 STM32 芯片中的硬件 I2C 外设，该硬件 I2C 外设跟 USART串口外设类似，只要配置好对应的寄存器，外设就会产生标准串口协议的时序。使用它的I2C 外设则可以方便地通过外设寄存器来控制硬件I2C外设产生 I2C 协议方式的通讯，而不需要内核直接控制引脚的电平。<br>硬件 I2C 直接使用外设来控制引脚，可以减轻 CPU 的负担。不过使用硬件I2C 时必须使用某些固定的引脚作为 SCL 和 SDA，软件模拟 I2C 则可以使用任意 GPIO 引脚，相对比较灵活。 </p>
+<h2 id="2-1-外设功能框图"><a href="#2-1-外设功能框图" class="headerlink" title="2.1-外设功能框图"></a>2.1-外设功能框图</h2><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326122800.png" style="zoom: 50%;"/>  
+
+<h2 id="2-2-通信控制引脚"><a href="#2-2-通信控制引脚" class="headerlink" title="2.2-通信控制引脚"></a>2.2-通信控制引脚</h2><h2 id="2-3-时钟控制逻辑"><a href="#2-3-时钟控制逻辑" class="headerlink" title="2.3-时钟控制逻辑"></a>2.3-时钟控制逻辑</h2><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326133948.png" style="zoom: 75%;"/>
+高电平时间T<sub>high</sub>：一个时钟周期，高电平所占时间  
+低电平时间T<sub>low</sub>：一个时钟周期，高电平所占时间  
+T<sub>pclk1</sub>=1/36MHZ   （I2C1外设是挂载在APB1总线上的）  
+快速模式下CCR的计算方法
+<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326134952.png"/>
+<img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326140249.png"/>
+
+<h2 id="2-4-数据控制逻辑"><a href="#2-4-数据控制逻辑" class="headerlink" title="2.4-数据控制逻辑"></a>2.4-数据控制逻辑</h2><p>• 当向外发送数据的时候，数据移位寄存器以“数据寄存器”为数据源，把数据一位一位地通过SDA信号线发送出去。<br>• 当从外部接收数据的时候，数据移位寄存器把SDA信号线采样到的数据一位一位地存储到“数据寄存器”中。<br>然后通过CPU或DMA向数据寄存器写入或者读出数据(一般保存在一个数组当中)。<br>（一）、逻辑控制框图<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326141523.png"/><br>（二）、数据寄存器DR<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326142434.png"/><br>（三）、自身地址寄存器1<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326142742.png"/><br>（四）、自身地址寄存器2<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326143150.png"/></p>
+<h2 id="2-5-整体控制逻辑"><a href="#2-5-整体控制逻辑" class="headerlink" title="2.5-整体控制逻辑"></a>2.5-整体控制逻辑</h2><p>我们只需配置好寄存器就可以让I2C外设硬件逻辑自动控制SDA，SCL总线去产生I2C协议的时序如：起始信号、应答信号、停止信号等等。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326192001.png"/><br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326192400.png"/><br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326192711.png"/><br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326192731.png"/></p>
+<h1 id="3-0-STM32的I2C外设通信过程"><a href="#3-0-STM32的I2C外设通信过程" class="headerlink" title="3.0-STM32的I2C外设通信过程"></a>3.0-STM32的I2C外设通信过程</h1><p>I2C模式选择：<br>接口可以下述4种模式中的一种运行：<br>● 从发送器模式<br>● 从接收器模式<br>● 主发送器模式<br>● 主接收器模式<br>该模块默认地工作于从模式。接口在生成起始条件后自动地从从模式切换到主模式；当仲裁丢失或产生停止信号时，则从主模式切换到从模式。允许多主机功能。<br>主模式：STM32作为主机通信(发送器与接收器)<br>从模式：STM32作为从机通信(发送器与接收器)<br>I2C主模式：<br>默认情况下，I2C接口总是工作在从模式。从从模式切换到主模式，需要产生一个起始条件。<br>在主模式时，I2C接口启动数据传输并产生时钟信号。串行数据传输总是以起始条件开始并以停止条件结束。当通过START位在总线上产生了起始条件，设备就进入了主模式。</p>
+<h2 id="3-1-主发送器"><a href="#3-1-主发送器" class="headerlink" title="3.1-主发送器"></a>3.1-主发送器</h2><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326194109.png"/>
+
+<h3 id="3-1-1-起始信号的产生"><a href="#3-1-1-起始信号的产生" class="headerlink" title="3.1.1-起始信号的产生"></a>3.1.1-起始信号的产生</h3><p>将控制寄存器1(I2C_CR1)的第8位置位为1，重复产生起始条件。软件可以设置或清除该位，或当起始条件发出后或PE&#x3D;0(PE&#x3D;0表示禁用I2C模块，所有位被清除)时，由硬件清除。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326195302.png"/><br>产生起始信号的库函数如下，其中CR1_START_Set被宏定义成((uint16_t)0x0100)</p>
+<pre><code>void I2C_GenerateSTART(I2C_TypeDef* I2Cx, FunctionalState NewState)
+&#123;
+  /* Check the parameters */
+  assert_param(IS_I2C_ALL_PERIPH(I2Cx));
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  if (NewState != DISABLE)
+  &#123;
+    /* Generate a START condition */
+    I2Cx-&gt;CR1 |= CR1_START_Set;  
+  &#125;
+  else
+  &#123;
+    /* Disable the START condition generation */
+    I2Cx-&gt;CR1 &amp;= CR1_START_Reset;
+  &#125;
+&#125;
+</code></pre>
+<h3 id="3-1-2-EV5事件检查"><a href="#3-1-2-EV5事件检查" class="headerlink" title="3.1.2-EV5事件检查"></a>3.1.2-EV5事件检查</h3><p>一旦发出开始条件，我们需要检测SB是否置1，判断是否成功发送起始信号。<br>在状态寄存器1(I2C_SR1)的第0位。当发送出起始条件时该位被置1。软件读取SR1寄存器后，写数据寄存器的操作将清除该位（指的是接下来CPU将设备地址写入数据寄存器），或当PE&#x3D;0（禁用I2C模块，所有位置0）时，硬件清除该位。<br>若将控制寄存器 2(I2C_CR2)的第9位ITEVTEN：事件中断使能 (Event interrupt enable)置1，则当SB&#x3D;1时会产生中断。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326200442.png"/></p>
+<p>检测EV5事件的代码其中FLAG_Mask&#x3D;0x00FFFFFF</p>
+<pre><code>ErrorStatus I2C_CheckEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
+&#123;
+  uint32_t lastevent = 0;
+  uint32_t flag1 = 0, flag2 = 0;
+  ErrorStatus status = ERROR;
+
+  /* Check the parameters */
+  assert_param(IS_I2C_ALL_PERIPH(I2Cx));
+  assert_param(IS_I2C_EVENT(I2C_EVENT));
+
+  /* Read the I2Cx status register */
+  flag1 = I2Cx-&gt;SR1;
+  flag2 = I2Cx-&gt;SR2;
+  flag2 = flag2 &lt;&lt; 16;
+
+  /* Get the last event value from I2C status register */
+  /*读出0-24位
+  lastevent = (flag1 | flag2) &amp; FLAG_Mask;
+
+  /* Check whether the last event contains the I2C_EVENT */
+  /*判断I2C_EVENT为1的位lastevent是否也为1
+  if ((lastevent &amp; I2C_EVENT) == I2C_EVENT)
+  &#123;
+    /* SUCCESS: last event is equal to I2C_EVENT */
+    status = SUCCESS;
+  &#125;
+  else
+  &#123;
+    /* ERROR: last event is different from I2C_EVENT */
+    status = ERROR;
+  &#125;
+  /* Return status */
+  return status;
+&#125;
+</code></pre>
+<h3 id="3-1-2-从设备地址字节的组成"><a href="#3-1-2-从设备地址字节的组成" class="headerlink" title="3.1.2-从设备地址字节的组成"></a>3.1.2-从设备地址字节的组成</h3><p>根据送出从地址的最低位，主设备决定进入发送器模式还是进入接收器模式。<br>● 在7位地址模式时，<br>─ 要进入发送器模式，主设备发送从地址时置最低位为’0’。<br>─ 要进入接收器模式，主设备发送从地址时置最低位为’1’。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326203857.png"/></p>
+<h3 id="3-1-3-EV6事件的检查"><a href="#3-1-3-EV6事件的检查" class="headerlink" title="3.1.3-EV6事件的检查"></a>3.1.3-EV6事件的检查</h3><p>检查状态寄存器 1(I2C_SR1)的第1位ADDR：地址已被发送(主模式)&#x2F;地址匹配(从模式) (Address sent (master mode)&#x2F;matched (slave mode))判断从设备地址是否发出且接收到应答。<br>在主模式下0：地址发送没有结束；1：地址发送结束。只有接收到应答信号时才会被置1。<br>读SR1然后读SR2将清除该事件。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326204602.png"/></p>
+<h3 id="3-1-4-EV8-1事件的检查"><a href="#3-1-4-EV8-1事件的检查" class="headerlink" title="3.1.4-EV8_1事件的检查"></a>3.1.4-EV8_1事件的检查</h3><p>这个检测是地址发送完之后对状态寄存器1(I2C_SR1)的第7位TxE：数据寄存器为空(发送时) (Data register empty (transmitters)) 进行检测。<br>写入DR寄存器将清除该事件。<br>其实我们只要检测EV6事件就可以了，因为EV6事件成功之后就已经代表地址（数据）发送出去，而且从机还应答了，地址已经发送完成那肯定数据寄存器，与移位寄存器肯定为空呐，所以不检测也可以。</p>
+<h3 id="3-1-5-EV8事件的检查"><a href="#3-1-5-EV8事件的检查" class="headerlink" title="3.1.5-EV8事件的检查"></a>3.1.5-EV8事件的检查</h3><p>我们在发送完一个数据之后必须判断数据寄存器是否为空，数据寄存器为空（TXE），才能向数据寄存器写入新的数据，不然上一个数据们还没有转移到移位寄存器，CPU又写入一个数据则会覆盖上一个数据。<br>这个检测是数据发送完之后对状态寄存器1(I2C_SR1)的第7位TxE：数据寄存器为空(发送时) (Data register empty (transmitters)) 进行检测。<br>写入DR寄存器将清除该事件。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326210259.png"/></p>
+<h3 id="3-1-6-EV8-2事件的检查"><a href="#3-1-6-EV8-2事件的检查" class="headerlink" title="3.1.6-EV8_2事件的检查"></a>3.1.6-EV8_2事件的检查</h3><p>检查状态寄存器 1(I2C_SR1)的第2位BTF：字节发送结束 (Byte transfer finished)以及第7位TxE：数据寄存器为空(发送时) (Data register empty (transmitters))。<br>数据移位寄存器的数据全部发送完成，则才算最后一个字节全部发送完毕。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326210905.png"/></p>
+<h3 id="3-1-6-关闭通信"><a href="#3-1-6-关闭通信" class="headerlink" title="3.1.6-关闭通信"></a>3.1.6-关闭通信</h3><p>在DR寄存器中写入最后一个字节后，通过设置STOP位产生一个停止条件，然后I2C接口将自动回到从模式(M&#x2F;S位清除)。<br>在控制寄存器 1(I2C_CR1)的第9位STOP：停止条件产生 (Stop generation)控制<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326211400.png"/></p>
+<h2 id="3-2-主接收器"><a href="#3-2-主接收器" class="headerlink" title="3.2-主接收器"></a>3.2-主接收器</h2><p>因为虽然STM32做为接收器，但是STM32是主机，起始信号与发送从机地址都是必须由主机干的活，所以前面EV5，EV6，EV6_1事件与主接收器是一模一样。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326212552.png"/></p>
+<h3 id="3-2-1-EV7事件检查"><a href="#3-2-1-EV7事件检查" class="headerlink" title="3.2.1-EV7事件检查"></a>3.2.1-EV7事件检查</h3><p>主机使能控制寄存器1(I2C_CR1)的第10位ACK：应答使能 (Acknowledge enable)就可以自动接收完数据产生应答信号。<br>检查状态寄存器1(I2C_SR1)的第6位RxNE：数据寄存器非空(接收时) (Data register not empty (receivers))。发送和接收是同一个寄存器数据寄存器(I2C_DR) 。<br>读DR寄存器清除该位。<br><img src="https://blogpicture123.oss-cn-qingdao.aliyuncs.com/picture/20230326213924.png"/></p>
+<h3 id="3-2-1-EV7-1事件检查"><a href="#3-2-1-EV7-1事件检查" class="headerlink" title="3.2.1-EV7_1事件检查"></a>3.2.1-EV7_1事件检查</h3><p>关闭通信<br>主设备在从设备接收到最后一个字节后发送一个NACK。接收到NACK后，从设备释放对SCL和SDA线的控制；主设备就可以发送一个停止&#x2F;重起始条件。<br>● 为了在收到最后一个字节后产生一个NACK脉冲，在读倒数第二个数据字节之后(在倒数第二个RxNE事件之后)必须清除控制寄存器1(I2C_CR1)的第10位ACK：应答使能 (Acknowledge enable)<br>● 为了产生一个停止&#x2F;重起始条件，软件必须在读倒数第二个数据字节之后(在倒数第二个RxNE事件之后)设置STOP&#x2F;START位(控制寄存器1(I2C_CR1)的第9位STOP：停止条件产生 (Stop generation))<br>● 只接收一个字节时，刚好在EV6之后(EV6_1时，清除ADDR之后)要关闭应答和停止条件的产生位。在产生了停止条件后，I2C接口自动回到从模式(M&#x2F;SL位被清除)<br>这里产生一个NACK其实就是清除ACK位，将ACK位置0，后面接收的一个字节不在产生应答就是非应答。</p>
+<h1 id="4-0-I2C结构体配置"><a href="#4-0-I2C结构体配置" class="headerlink" title="4.0-I2C结构体配置"></a>4.0-I2C结构体配置</h1><h2 id="4-1-I2C结构体成员"><a href="#4-1-I2C结构体成员" class="headerlink" title="4.1-I2C结构体成员"></a>4.1-I2C结构体成员</h2><pre><code>typedef struct
+&#123;
+  uint32_t I2C_ClockSpeed;            //设置SCL时钟频率，最高为400kbit/s
+  
+  uint16_t I2C_Mode;                  //工作模式，可选I2C模式、SMBUS模式
+
+  uint16_t I2C_DutyCycle;             //时钟占空比， 
+
+  uint16_t I2C_OwnAddress1;           //设置自身I2C地址   
+
+  uint16_t I2C_Ack;                   //使能应答，自动应答
+ 
+  uint16_t I2C_AcknowledgedAddress;   //设置地址长度，可以为7位或10位
+&#125;I2C_InitTypeDef;
+</code></pre>
+<h2 id="4-2-I2C-ClockSpeed"><a href="#4-2-I2C-ClockSpeed" class="headerlink" title="4.2-I2C_ClockSpeed"></a>4.2-I2C_ClockSpeed</h2>
+    </div>
+
+    
+    
+    
+
+     
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.png">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/03/20/DMA/" rel="prev" title="DMA">
+      <i class="fa fa-chevron-left"></i> DMA
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81NzY5NS8zNDE1OA=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-0-I2C%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.</span> <span class="nav-text">1.0-I2C协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-I2C%E7%A1%AC%E4%BB%B6%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.1.</span> <span class="nav-text">1.1-I2C硬件协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-I2C-%E9%80%9A%E8%AE%AF%E8%AE%BE%E5%A4%87%E4%B9%8B%E9%97%B4%E7%9A%84%E5%B8%B8%E7%94%A8%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1.1-I2C 通讯设备之间的常用连接方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-%E9%AB%98%E9%98%BB%E6%80%81"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.1.2-高阻态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-3-%E5%A4%8D%E7%94%A8%E5%8A%9F%E8%83%BD%E5%BC%80%E6%BC%8F"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.1.3-复用功能开漏</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-I2C%E8%BD%AF%E4%BB%B6%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.2.</span> <span class="nav-text">1.2-I2C软件协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-I2C%E5%9F%BA%E6%9C%AC%E8%AF%BB%E5%86%99%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1-I2C基本读写过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-I2C%E8%AF%BB%E5%86%99%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%94%B5%E5%B9%B3%E4%BF%A1%E5%8F%B7"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2.2-I2C读写过程中电平信号</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-0-%E7%A1%AC%E4%BB%B6I2C%E9%80%9A%E8%AE%AF%E9%80%BB%E8%BE%91"><span class="nav-number">2.</span> <span class="nav-text">2.0-硬件I2C通讯逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E5%A4%96%E8%AE%BE%E5%8A%9F%E8%83%BD%E6%A1%86%E5%9B%BE"><span class="nav-number">2.1.</span> <span class="nav-text">2.1-外设功能框图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E9%80%9A%E4%BF%A1%E6%8E%A7%E5%88%B6%E5%BC%95%E8%84%9A"><span class="nav-number">2.2.</span> <span class="nav-text">2.2-通信控制引脚</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E6%97%B6%E9%92%9F%E6%8E%A7%E5%88%B6%E9%80%BB%E8%BE%91"><span class="nav-number">2.3.</span> <span class="nav-text">2.3-时钟控制逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-%E6%95%B0%E6%8D%AE%E6%8E%A7%E5%88%B6%E9%80%BB%E8%BE%91"><span class="nav-number">2.4.</span> <span class="nav-text">2.4-数据控制逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-%E6%95%B4%E4%BD%93%E6%8E%A7%E5%88%B6%E9%80%BB%E8%BE%91"><span class="nav-number">2.5.</span> <span class="nav-text">2.5-整体控制逻辑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-0-STM32%E7%9A%84I2C%E5%A4%96%E8%AE%BE%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">3.0-STM32的I2C外设通信过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E4%B8%BB%E5%8F%91%E9%80%81%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">3.1-主发送器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-1-%E8%B5%B7%E5%A7%8B%E4%BF%A1%E5%8F%B7%E7%9A%84%E4%BA%A7%E7%94%9F"><span class="nav-number">3.1.1.</span> <span class="nav-text">3.1.1-起始信号的产生</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-2-EV5%E4%BA%8B%E4%BB%B6%E6%A3%80%E6%9F%A5"><span class="nav-number">3.1.2.</span> <span class="nav-text">3.1.2-EV5事件检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-2-%E4%BB%8E%E8%AE%BE%E5%A4%87%E5%9C%B0%E5%9D%80%E5%AD%97%E8%8A%82%E7%9A%84%E7%BB%84%E6%88%90"><span class="nav-number">3.1.3.</span> <span class="nav-text">3.1.2-从设备地址字节的组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-3-EV6%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%A3%80%E6%9F%A5"><span class="nav-number">3.1.4.</span> <span class="nav-text">3.1.3-EV6事件的检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-4-EV8-1%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%A3%80%E6%9F%A5"><span class="nav-number">3.1.5.</span> <span class="nav-text">3.1.4-EV8_1事件的检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-5-EV8%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%A3%80%E6%9F%A5"><span class="nav-number">3.1.6.</span> <span class="nav-text">3.1.5-EV8事件的检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-6-EV8-2%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%A3%80%E6%9F%A5"><span class="nav-number">3.1.7.</span> <span class="nav-text">3.1.6-EV8_2事件的检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-6-%E5%85%B3%E9%97%AD%E9%80%9A%E4%BF%A1"><span class="nav-number">3.1.8.</span> <span class="nav-text">3.1.6-关闭通信</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E4%B8%BB%E6%8E%A5%E6%94%B6%E5%99%A8"><span class="nav-number">3.2.</span> <span class="nav-text">3.2-主接收器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-1-EV7%E4%BA%8B%E4%BB%B6%E6%A3%80%E6%9F%A5"><span class="nav-number">3.2.1.</span> <span class="nav-text">3.2.1-EV7事件检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-1-EV7-1%E4%BA%8B%E4%BB%B6%E6%A3%80%E6%9F%A5"><span class="nav-number">3.2.2.</span> <span class="nav-text">3.2.1-EV7_1事件检查</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-0-I2C%E7%BB%93%E6%9E%84%E4%BD%93%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">4.0-I2C结构体配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-I2C%E7%BB%93%E6%9E%84%E4%BD%93%E6%88%90%E5%91%98"><span class="nav-number">4.1.</span> <span class="nav-text">4.1-I2C结构体成员</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-I2C-ClockSpeed"><span class="nav-number">4.2.</span> <span class="nav-text">4.2-I2C_ClockSpeed</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胜哥"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">胜哥</p>
+  <div class="site-description" itemprop="description">仰望星空，脚踏实地</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://zh.cppreference.com/w/cpp" title="C++参考手册 → https:&#x2F;&#x2F;zh.cppreference.com&#x2F;w&#x2F;cpp" rel="noopener" target="_blank"><i class="fa fa-C++参考手册 fa-fw"></i>C++参考手册</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.bilibili.com/" title="B站 → https:&#x2F;&#x2F;www.bilibili.com&#x2F;" rel="noopener" target="_blank"><i class="fa fa-B站 fa-fw"></i>B站</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://baidu.com/" title="https:&#x2F;&#x2F;baidu.com" rel="noopener" target="_blank">百度</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胜哥</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">47k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">43 分钟</span>
+</div>
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>
